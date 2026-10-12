@@ -53,10 +53,10 @@ document.body.appendChild(uiContainer);
 // --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
 const imagenEsquina1 = document.createElement('img');
 imagenEsquina1.src = './monster rain.gif'; // Cambia 'foto.png' por el nombre exacto de tu archivo
-imagenEsquina1.style.position = 'absolute';
+imagenEsquina1.style.position = 'fixed';
 imagenEsquina1.style.bottom = '400px'; // Un poco más arriba del texto de autor
 imagenEsquina1.style.right = '-60px';
-imagenEsquina1.style.width = '400px';  // Ajusta el tamaño como prefieras
+imagenEsquina1.style.width = 'clamp(400px, 10vw, 120px)'
 imagenEsquina1.style.height = 'auto';
 imagenEsquina1.style.borderRadius = '8px';
 imagenEsquina1.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
@@ -67,10 +67,10 @@ document.body.appendChild(imagenEsquina1);
 // --- SEGUNDA IMAGEN FLOTANTE ---
 const imagenEsquina2 = document.createElement('img');
 imagenEsquina2.src = './cigs.gif'; // Nombre de tu segunda foto en la carpeta public
-imagenEsquina2.style.position = 'absolute';
+imagenEsquina2.style.position = 'fixed';
 imagenEsquina2.style.bottom = '15px'; // Altura donde se colocará
 imagenEsquina2.style.right = '390px'; // Distancia desde la derecha (para ponerla al lado de la otra)
-imagenEsquina2.style.width = '100px';  // Ancho de la imagen
+imagenEsquina2.style.width = 'clamp(100px, 10vw, 120px)'
 imagenEsquina2.style.height = 'auto';
 imagenEsquina2.style.borderRadius = '8px';
 imagenEsquina2.style.boxShadow = '0 4px 16px rgba(0,0,0,0)';
@@ -81,10 +81,10 @@ document.body.appendChild(imagenEsquina2);
 // --- TERCERA IMAGEN FLOTANTE ---
 const imagenEsquina3 = document.createElement('img');
 imagenEsquina3.src = './cat.gif'; // Nombre de tu tercera foto en la carpeta public
-imagenEsquina3.style.position = 'absolute';
+imagenEsquina3.style.position = 'fixed';
 imagenEsquina3.style.bottom = '430px'; // Altura donde se colocará
 imagenEsquina3.style.right = '680px'; // Distancia desde la derecha (para ponerla al lado de la otra)
-imagenEsquina3.style.width = '200px';  // Ancho de la imagen
+imagenEsquina3.style.width = 'clamp(200px, 10vw, 120px)';  // Ancho de la imagen
 imagenEsquina3.style.height = 'auto';
 imagenEsquina3.style.borderRadius = '8px';
 imagenEsquina3.style.boxShadow = '0 4px 16px rgba(0,0,0,0)';
@@ -95,10 +95,10 @@ document.body.appendChild(imagenEsquina3);
 // --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
 const imagenEsquina5 = document.createElement('img');
 imagenEsquina5.src = './MonsterW.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
-imagenEsquina5.style.position = 'absolute';
+imagenEsquina5.style.position = 'fixed';
 imagenEsquina5.style.bottom = '0px'; // Un poco más arriba del texto de autor
 imagenEsquina5.style.right = '-150px';
-imagenEsquina5.style.width = '555px';  // Ajusta el tamaño como prefieras
+imagenEsquina5.style.width = 'clamp(555px, 10vw, 120px)';  // Ajusta el tamaño como prefieras
 imagenEsquina5.style.height = 'auto';
 imagenEsquina5.style.borderRadius = '8px';
 imagenEsquina5.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
@@ -109,10 +109,10 @@ document.body.appendChild(imagenEsquina5);
 // --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
 const imagenEsquina6 = document.createElement('img');
 imagenEsquina6.src = './goth baddie.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
-imagenEsquina6.style.position = 'absolute';
+imagenEsquina6.style.position = 'fixed';
 imagenEsquina6.style.bottom = '0px'; // Un poco más arriba del texto de autor
 imagenEsquina6.style.right = '-20px';
-imagenEsquina6.style.width = '445px';  // Ajusta el tamaño como prefieras
+imagenEsquina6.style.width = 'clamp(445px, 10vw, 120px)';  // Ajusta el tamaño como prefieras
 imagenEsquina6.style.height = 'auto';
 imagenEsquina6.style.borderRadius = '8px';
 imagenEsquina6.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
@@ -122,7 +122,7 @@ document.body.appendChild(imagenEsquina6);
 
 // --- CARTELITO INFERIOR DERECHO (AUTOR) ---
 const cartelAutor = document.createElement('div');
-cartelAutor.style.position = 'absolute';
+cartelAutor.style.position = 'fixed';
 cartelAutor.style.bottom = '15px';
 cartelAutor.style.right = '20px';
 cartelAutor.style.background = 'rgba(0, 0, 0, 0.75)';
