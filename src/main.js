@@ -136,7 +136,7 @@ cartelAutor.style.fontWeight = 'bold';
 cartelAutor.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
 cartelAutor.style.zIndex = '100';
 cartelAutor.style.pointerEvents = 'none';
-cartelAutor.textContent = 'by: Greta';
+cartelAutor.textContent = 'by: el drath';
 document.body.appendChild(cartelAutor);
 
 // --- PLAYLIST DE MÚSICA DE FONDO ---
