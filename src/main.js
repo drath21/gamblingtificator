@@ -82,8 +82,8 @@ document.body.appendChild(imagenEsquina2);
 const imagenEsquina3 = document.createElement('img');
 imagenEsquina3.src = './cat.gif'; // Nombre de tu tercera foto en la carpeta public
 imagenEsquina3.style.position = 'absolute';
-imagenEsquina3.style.bottom = '480px'; // Altura donde se colocará
-imagenEsquina3.style.right = '700px'; // Distancia desde la derecha (para ponerla al lado de la otra)
+imagenEsquina3.style.bottom = '430px'; // Altura donde se colocará
+imagenEsquina3.style.right = '680px'; // Distancia desde la derecha (para ponerla al lado de la otra)
 imagenEsquina3.style.width = '200px';  // Ancho de la imagen
 imagenEsquina3.style.height = 'auto';
 imagenEsquina3.style.borderRadius = '8px';
