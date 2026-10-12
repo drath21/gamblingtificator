@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Evita que salgan barras de desplazamiento */
+  background-color: #111111; /* Un color gris muy oscuro, casi negro */
+}
+
+canvas {
+  display: block; /* Asegura que el lienzo 3D se comporte correctamente */
+}
