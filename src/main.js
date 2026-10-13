@@ -34,6 +34,8 @@ uiContainer.style.position = 'absolute';
 uiContainer.style.top = '20px';
 uiContainer.style.left = '20px';
 uiContainer.style.width = '320px';
+uiContainer.style.maxHeight = '90vh';    // <--- Añadido aquí (nunca será más alto que el 90% de la pantalla)
+uiContainer.style.overflowY = 'auto';    // <--- Añadido aquí (activa la barra de scroll si el menú es muy largo)
 uiContainer.style.background = 'rgba(0, 0, 0, 0.9)';
 uiContainer.style.padding = '15px';
 uiContainer.style.borderRadius = '12px';
@@ -55,7 +57,7 @@ uiContainer.innerHTML = `
 
   <div style="display: flex; flex-direction: column; gap: 4px;">
     <div style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
-    <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Jorge:45, Manuel:25, Elaryan:30</textarea>
+    <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
     <button id="btn-asignar" style="background:#0088ff; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">Asignar Porcentajes y Fichas</button>
   </div>
 
@@ -79,11 +81,11 @@ document.body.appendChild(uiContainer);
 
 // --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
 const imagenEsquina1 = document.createElement('img');
-imagenEsquina1.src = './monster rain.gif'; // Cambia 'foto.png' por el nombre exacto de tu archivo
+imagenEsquina1.src = './monster rain.gif';
 imagenEsquina1.style.position = 'fixed';
-imagenEsquina1.style.bottom = '500px'; // Un poco más arriba del texto de autor
+imagenEsquina1.style.bottom = '500px';
 imagenEsquina1.style.right = '-75px';
-imagenEsquina1.style.width = 'clamp(175px, 30vw, 700px)'
+imagenEsquina1.style.width = 'clamp(175px, 30vw, 700px)';
 imagenEsquina1.style.height = 'auto';
 imagenEsquina1.style.borderRadius = '8px';
 imagenEsquina1.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
@@ -93,11 +95,11 @@ document.body.appendChild(imagenEsquina1);
 
 // --- SEGUNDA IMAGEN FLOTANTE ---
 const imagenEsquina2 = document.createElement('img');
-imagenEsquina2.src = './cigs.gif'; // Nombre de tu segunda foto en la carpeta public
+imagenEsquina2.src = './cigs.gif';
 imagenEsquina2.style.position = 'fixed';
-imagenEsquina2.style.bottom = '15px'; // Altura donde se colocará
-imagenEsquina2.style.right = '1500px'; // Distancia desde la derecha (para ponerla al lado de la otra)
-imagenEsquina2.style.width = 'clamp(100px, 30vw, 150px)'
+imagenEsquina2.style.bottom = '15px';
+imagenEsquina2.style.right = '1500px';
+imagenEsquina2.style.width = 'clamp(100px, 30vw, 150px)';
 imagenEsquina2.style.height = 'auto';
 imagenEsquina2.style.borderRadius = '8px';
 imagenEsquina2.style.boxShadow = '0 4px 16px rgba(0,0,0,0)';
@@ -107,11 +109,11 @@ document.body.appendChild(imagenEsquina2);
 
 // --- TERCERA IMAGEN FLOTANTE ---
 const imagenEsquina3 = document.createElement('img');
-imagenEsquina3.src = './cat.gif'; // Nombre de tu tercera foto en la carpeta public
+imagenEsquina3.src = './cat.gif';
 imagenEsquina3.style.position = 'fixed';
-imagenEsquina3.style.bottom = '600px'; // Altura donde se colocará
-imagenEsquina3.style.right = '1100px'; // Distancia desde la derecha (para ponerla al lado de la otra)
-imagenEsquina3.style.width = 'clamp(200px, 30vw, 300px)';  // Ancho de la imagen
+imagenEsquina3.style.bottom = '600px';
+imagenEsquina3.style.right = '1100px';
+imagenEsquina3.style.width = 'clamp(200px, 30vw, 300px)';
 imagenEsquina3.style.height = 'auto';
 imagenEsquina3.style.borderRadius = '8px';
 imagenEsquina3.style.boxShadow = '0 4px 16px rgba(0,0,0,0)';
@@ -119,13 +121,13 @@ imagenEsquina3.style.zIndex = '100';
 imagenEsquina3.style.pointerEvents = 'none';
 document.body.appendChild(imagenEsquina3);
 
-// --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
+// --- CUARTA IMAGEN FLOTANTE (MonsterW) ---
 const imagenEsquina5 = document.createElement('img');
-imagenEsquina5.src = './MonsterW.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
+imagenEsquina5.src = './MonsterW.png';
 imagenEsquina5.style.position = 'fixed';
-imagenEsquina5.style.bottom = '-50px'; // Un poco más arriba del texto de autor
+imagenEsquina5.style.bottom = '-50px';
 imagenEsquina5.style.right = '-150px';
-imagenEsquina5.style.width = 'clamp(750px, 30vw, 1700px)';  // Ajusta el tamaño como prefieras
+imagenEsquina5.style.width = 'clamp(750px, 30vw, 1700px)';
 imagenEsquina5.style.height = 'auto';
 imagenEsquina5.style.borderRadius = '8px';
 imagenEsquina5.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
@@ -133,19 +135,45 @@ imagenEsquina5.style.zIndex = '100';
 imagenEsquina5.style.pointerEvents = 'none';
 document.body.appendChild(imagenEsquina5);
 
-// --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
+// --- QUINTA IMAGEN FLOTANTE (Goth Baddie) ---
 const imagenEsquina6 = document.createElement('img');
-imagenEsquina6.src = './goth baddie.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
+imagenEsquina6.src = './goth baddie.png';
 imagenEsquina6.style.position = 'fixed';
-imagenEsquina6.style.bottom = '0px'; // Un poco más arriba del texto de autor
+imagenEsquina6.style.bottom = '0px';
 imagenEsquina6.style.right = '-20px';
-imagenEsquina6.style.width = 'clamp(500px, 30vw, 995px)'
+imagenEsquina6.style.width = 'clamp(500px, 30vw, 995px)';
 imagenEsquina6.style.height = 'auto';
 imagenEsquina6.style.borderRadius = '8px';
 imagenEsquina6.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
 imagenEsquina6.style.zIndex = '100';
 imagenEsquina6.style.pointerEvents = 'none';
 document.body.appendChild(imagenEsquina6);
+
+// --- LAYOUT PROPORCIONAL DE IMÁGENES (diseño de referencia: 1920x915) ---
+const DISENO_W = 1920;
+const DISENO_H = 915;
+
+// Valores en píxeles tal y como se ven en pantalla completa
+const configImagenes = [
+  { el: imagenEsquina1, bottom: 500, right: -75,  width: 576 }, // monster rain
+  { el: imagenEsquina2, bottom: 15,  right: 1500, width: 150 }, // cigs
+  { el: imagenEsquina3, bottom: 600, right: 1100, width: 300 }, // cat
+  { el: imagenEsquina5, bottom: -50, right: -150, width: 750 }, // MonsterW
+  { el: imagenEsquina6, bottom: 0,   right: -20,  width: 576 }, // goth baddie
+];
+
+function ajustarImagenes() {
+  // Un único factor para todo, así se conserva la proporción de la composición
+  const escala = Math.min(window.innerWidth / DISENO_W, window.innerHeight / DISENO_H);
+
+  configImagenes.forEach(({ el, bottom, right, width }) => {
+    el.style.display = 'block';
+    el.style.bottom = (bottom * escala) + 'px';
+    el.style.right = (right * escala) + 'px';
+    el.style.width = (width * escala) + 'px';
+    el.style.height = 'auto';
+  });
+}
 
 // --- CARTELITO INFERIOR DERECHO (AUTOR) ---
 const cartelAutor = document.createElement('div');
@@ -165,6 +193,7 @@ cartelAutor.style.zIndex = '100';
 cartelAutor.style.pointerEvents = 'none';
 cartelAutor.textContent = 'by: el drath';
 document.body.appendChild(cartelAutor);
+
 
 // --- PLAYLIST DE MÚSICA DE FONDO (TOTALMENTE ALEATORIA DESDE EL INICIO) ---
 const playlist = [
@@ -957,9 +986,20 @@ function animate(tiempoActual) {
 }
 
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  camera.aspect = width / height;
+  camera.position.set(0, 5.0, 4.5);
+  camera.lookAt(0, 0, 0);
+
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(width, height);
+
+  ajustarImagenes();
 });
+
+// Ejecutar al cargar
+ajustarImagenes();
 
 animate(performance.now());
