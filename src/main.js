@@ -49,12 +49,12 @@ uiContainer.innerHTML = `
   <div style="font-size: 16px; font-weight: bold; color: #ffd700; text-align: center;">EL GAMBLINGFICADOR V. 6.7</div>
   
   <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px;">
-    <span style="font-size: 11px; color: #aaa;">Música de Fondo (Playlist):</span>
+    <span style="font-size: 11px; color: #aaa;">Gambling Music:</span>
     <button id="btn-musica" style="background:#444; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">MUTED 🔇</button>
   </div>
 
   <div style="display: flex; flex-direction: column; gap: 4px;">
-    <div style="font-size: 11px; color: #aaa;">Participantes y porcentajes (Deben sumar 100%):</div>
+    <div style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
     <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Jorge:45, Manuel:25, Elaryan:30</textarea>
     <button id="btn-asignar" style="background:#0088ff; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">Asignar Porcentajes y Fichas</button>
   </div>
@@ -62,11 +62,11 @@ uiContainer.innerHTML = `
   <div style="font-size: 11px; font-weight: bold; color: #00ff88; border-top: 1px solid #333; padding-top: 4px;">Numeritos:</div>
   <div id="panel-asignacion" style="font-size: 10px; color: #ddd; max-height: 80px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;"></div>
 
-  <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">Tablero de Fichas (Haz clic para apostar):</div>
+  <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">FICHAS (Haz clic para apostar):</div>
   <div id="panel-fichas-estado" style="font-size: 11px; color: #00ffaa; font-weight: bold;"></div>
   <div id="tablero-apuestas" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; max-height: 120px; overflow-y: auto; background: rgba(0,64,26,0.8); padding: 6px; border-radius: 6px; border: 1px solid #ffd700;"></div>
 
-  <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">Historial de Ganadores:</div>
+  <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">HALL DE LOS GANADORES:</div>
   <div id="panel-historial" style="font-size: 10px; color: #ffcc00; max-height: 60px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px;">Sin tiradas todavía.</div>
 
   <button id="btn-girar" style="position: relative; overflow: hidden; background:#00aa55; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">
@@ -166,14 +166,14 @@ cartelAutor.style.pointerEvents = 'none';
 cartelAutor.textContent = 'by: el drath';
 document.body.appendChild(cartelAutor);
 
-// --- PLAYLIST DE MÚSICA DE FONDO (ALEATORIA) ---
+// --- PLAYLIST DE MÚSICA DE FONDO (TOTALMENTE ALEATORIA DESDE EL INICIO) ---
 const playlist = [
   './deftones.mp3',
   './deftones2.mp3',
   './deftones3.mp3'
 ];
 
-// Función para obtener un índice aleatorio
+// Función para obtener un índice aleatorio evitando repetir la misma canción seguida
 function obtenerIndiceAleatorio(excluir = -1) {
   if (playlist.length <= 1) return 0;
   let nuevoIndice;
@@ -183,8 +183,8 @@ function obtenerIndiceAleatorio(excluir = -1) {
   return nuevoIndice;
 }
 
-// Empezar con una canción aleatoria
-let indiceCancionActual = obtenerIndiceAleatorio();
+// Iniciar directamente con una canción aleatoria en lugar de empezar siempre por la 0
+let indiceCancionActual = Math.floor(Math.random() * playlist.length);
 const audioFondo = new Audio(playlist[indiceCancionActual]);
 audioFondo.volume = 0.5;
 
