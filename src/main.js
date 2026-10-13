@@ -1,23 +1,31 @@
 import './style.css';
 import * as THREE from 'three';
 
-// Lógica para quitar la pantalla de bienvenida al pulsar el botón
+// Lógica para quitar la pantalla de bienvenida y activar la música
 const startBtn = document.getElementById('start-btn');
 const welcomeScreen = document.getElementById('welcome-screen');
 
 if (startBtn && welcomeScreen) {
   startBtn.addEventListener('click', () => {
-    // Oculta y elimina el cartel de bienvenida
+    // 1. Oculta y elimina el cartel de bienvenida
     welcomeScreen.style.opacity = '0';
     welcomeScreen.style.transition = 'opacity 0.5s ease';
     
     setTimeout(() => {
       welcomeScreen.remove();
-    }, 500); // Se borra del DOM tras la animación de desvanecimiento
+    }, 500);
 
-    // Opcional: Si tus audios o reproducción de Three.js necesitan 
-    // la interacción del usuario para arrancar sin bloqueos del navegador, 
-    // puedes inicializarlos aquí dentro.
+    // 2. ACTIVAR LA MÚSICA DESDE AQUÍ
+    // Reemplaza la línea de abajo por el código o variable que utilices 
+    // en tu proyecto para reproducir la música (por ejemplo: tuAudio.play(), 
+    // o llamando a tu función de reproducción).
+    try {
+      // Ejemplo: si tienes una variable de audio llamada backgroundAudio
+      // backgroundAudio.play();
+      console.log("¡Música iniciada por interacción del usuario!");
+    } catch (e) {
+      console.log("El audio no se pudo iniciar automáticamente:", e);
+    }
   });
 }
 
