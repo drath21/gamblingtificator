@@ -82,9 +82,9 @@ document.body.appendChild(uiContainer);
 const imagenEsquina1 = document.createElement('img');
 imagenEsquina1.src = './monster rain.gif'; // Cambia 'foto.png' por el nombre exacto de tu archivo
 imagenEsquina1.style.position = 'fixed';
-imagenEsquina1.style.bottom = '550px'; // Un poco más arriba del texto de autor
+imagenEsquina1.style.bottom = '500px'; // Un poco más arriba del texto de autor
 imagenEsquina1.style.right = '-60px';
-imagenEsquina1.style.width = 'clamp(200px, 30vw, 600px)'
+imagenEsquina1.style.width = 'clamp(300px, 30vw, 700px)'
 imagenEsquina1.style.height = 'auto';
 imagenEsquina1.style.borderRadius = '8px';
 imagenEsquina1.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
@@ -124,9 +124,9 @@ document.body.appendChild(imagenEsquina3);
 const imagenEsquina5 = document.createElement('img');
 imagenEsquina5.src = './MonsterW.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
 imagenEsquina5.style.position = 'fixed';
-imagenEsquina5.style.bottom = '0px'; // Un poco más arriba del texto de autor
-imagenEsquina5.style.right = '-250px';
-imagenEsquina5.style.width = 'clamp(1000px, 30vw, 1700px)';  // Ajusta el tamaño como prefieras
+imagenEsquina5.style.bottom = '-50px'; // Un poco más arriba del texto de autor
+imagenEsquina5.style.right = '-350px';
+imagenEsquina5.style.width = 'clamp(700px, 30vw, 1700px)';  // Ajusta el tamaño como prefieras
 imagenEsquina5.style.height = 'auto';
 imagenEsquina5.style.borderRadius = '8px';
 imagenEsquina5.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
