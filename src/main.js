@@ -16,15 +16,14 @@ if (startBtn && welcomeScreen) {
     }, 500);
 
     // 2. ACTIVAR LA MÚSICA DESDE AQUÍ
-    // Reemplaza la línea de abajo por el código o variable que utilices 
-    // en tu proyecto para reproducir la música (por ejemplo: tuAudio.play(), 
-    // o llamando a tu función de reproducción).
-    try {
-      // Ejemplo: si tienes una variable de audio llamada backgroundAudio
-      // backgroundAudio.play();
-      console.log("¡Música iniciada por interacción del usuario!");
-    } catch (e) {
-      console.log("El audio no se pudo iniciar automáticamente:", e);
+    musicaActiva = true;
+    audioFondo.play().catch(() => {});
+    
+    // Actualizar el botón lateral visualmente a PLAY 🎵
+    const btnMusicaUI = document.getElementById('btn-musica');
+    if (btnMusicaUI) {
+      btnMusicaUI.textContent = 'PLAY 🎵';
+      btnMusicaUI.style.background = '#00aa55';
     }
   });
 }
@@ -167,20 +166,31 @@ cartelAutor.style.pointerEvents = 'none';
 cartelAutor.textContent = 'by: el drath';
 document.body.appendChild(cartelAutor);
 
-// --- PLAYLIST DE MÚSICA DE FONDO ---
+// --- PLAYLIST DE MÚSICA DE FONDO (ALEATORIA) ---
 const playlist = [
   './deftones.mp3',
   './deftones2.mp3',
   './deftones3.mp3'
 ];
 
-let indiceCancionActual = 0;
+// Función para obtener un índice aleatorio
+function obtenerIndiceAleatorio(excluir = -1) {
+  if (playlist.length <= 1) return 0;
+  let nuevoIndice;
+  do {
+    nuevoIndice = Math.floor(Math.random() * playlist.length);
+  } while (nuevoIndice === excluir);
+  return nuevoIndice;
+}
+
+// Empezar con una canción aleatoria
+let indiceCancionActual = obtenerIndiceAleatorio();
 const audioFondo = new Audio(playlist[indiceCancionActual]);
 audioFondo.volume = 0.5;
 
-// Pasar automáticamente a la siguiente canción de la playlist al terminar
+// Pasar automáticamente a otra canción aleatoria al terminar la actual
 audioFondo.addEventListener('ended', () => {
-  indiceCancionActual = (indiceCancionActual + 1) % playlist.length;
+  indiceCancionActual = obtenerIndiceAleatorio(indiceCancionActual);
   audioFondo.src = playlist[indiceCancionActual];
   if (musicaActiva) {
     audioFondo.play().catch(() => {});
@@ -466,7 +476,7 @@ const panelFichasEstado = document.getElementById('panel-fichas-estado');
 function asignarPorcentajes() {
   ocultarCartel();
   historialGanadores = [];
-  panelHistorial.textContent = "Sin tiradas todavía.";
+  panelHistorial.textContent = "Not Gambling yet";
   apuestasEnTablero = {};
 
   const textoInput = document.getElementById('input-jugadores').value;
@@ -509,7 +519,7 @@ function asignarPorcentajes() {
       asignacionNumeros[num] = jugador.nombre;
     }
 
-    fichasRestantesPorJugador[jugador.nombre] = Math.max(1, Math.round(jugador.porcentaje / 10));
+    fichasRestantesPorJugador[jugador.nombre] = jugador.numeros.length;
 
     resumenHTML += `<div><span style="color:${colorAsignado}; font-weight:bold;">${jugador.nombre} (${jugador.porcentaje}%):</span> [${jugador.numeros.join(', ')}]</div>`;
   });
