@@ -54,7 +54,7 @@ document.body.appendChild(uiContainer);
 const imagenEsquina1 = document.createElement('img');
 imagenEsquina1.src = './monster rain.gif'; // Cambia 'foto.png' por el nombre exacto de tu archivo
 imagenEsquina1.style.position = 'fixed';
-imagenEsquina1.style.bottom = '600px'; // Un poco más arriba del texto de autor
+imagenEsquina1.style.bottom = '550px'; // Un poco más arriba del texto de autor
 imagenEsquina1.style.right = '-60px';
 imagenEsquina1.style.width = 'clamp(200px, 30vw, 600px)'
 imagenEsquina1.style.height = 'auto';
@@ -69,7 +69,7 @@ const imagenEsquina2 = document.createElement('img');
 imagenEsquina2.src = './cigs.gif'; // Nombre de tu segunda foto en la carpeta public
 imagenEsquina2.style.position = 'fixed';
 imagenEsquina2.style.bottom = '15px'; // Altura donde se colocará
-imagenEsquina2.style.right = '400px'; // Distancia desde la derecha (para ponerla al lado de la otra)
+imagenEsquina2.style.right = '1500px'; // Distancia desde la derecha (para ponerla al lado de la otra)
 imagenEsquina2.style.width = 'clamp(100px, 30vw, 150px)'
 imagenEsquina2.style.height = 'auto';
 imagenEsquina2.style.borderRadius = '8px';
@@ -96,7 +96,7 @@ document.body.appendChild(imagenEsquina3);
 const imagenEsquina5 = document.createElement('img');
 imagenEsquina5.src = './MonsterW.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
 imagenEsquina5.style.position = 'fixed';
-imagenEsquina5.style.bottom = '5px'; // Un poco más arriba del texto de autor
+imagenEsquina5.style.bottom = '100px'; // Un poco más arriba del texto de autor
 imagenEsquina5.style.right = '-100px';
 imagenEsquina5.style.width = 'clamp(700px, 30vw, 1500px)';  // Ajusta el tamaño como prefieras
 imagenEsquina5.style.height = 'auto';
