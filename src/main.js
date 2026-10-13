@@ -1,6 +1,26 @@
 import './style.css';
 import * as THREE from 'three';
 
+// Lógica para quitar la pantalla de bienvenida al pulsar el botón
+const startBtn = document.getElementById('start-btn');
+const welcomeScreen = document.getElementById('welcome-screen');
+
+if (startBtn && welcomeScreen) {
+  startBtn.addEventListener('click', () => {
+    // Oculta y elimina el cartel de bienvenida
+    welcomeScreen.style.opacity = '0';
+    welcomeScreen.style.transition = 'opacity 0.5s ease';
+    
+    setTimeout(() => {
+      welcomeScreen.remove();
+    }, 500); // Se borra del DOM tras la animación de desvanecimiento
+
+    // Opcional: Si tus audios o reproducción de Three.js necesitan 
+    // la interacción del usuario para arrancar sin bloqueos del navegador, 
+    // puedes inicializarlos aquí dentro.
+  });
+}
+
 // --- INTERFAZ HTML LATERAL EN VERTICAL ---
 const uiContainer = document.createElement('div');
 uiContainer.style.position = 'absolute';
@@ -96,9 +116,9 @@ document.body.appendChild(imagenEsquina3);
 const imagenEsquina5 = document.createElement('img');
 imagenEsquina5.src = './MonsterW.png'; // Cambia 'foto.png' por el nombre exacto de tu archivo
 imagenEsquina5.style.position = 'fixed';
-imagenEsquina5.style.bottom = '100px'; // Un poco más arriba del texto de autor
-imagenEsquina5.style.right = '-100px';
-imagenEsquina5.style.width = 'clamp(700px, 30vw, 1500px)';  // Ajusta el tamaño como prefieras
+imagenEsquina5.style.bottom = '0px'; // Un poco más arriba del texto de autor
+imagenEsquina5.style.right = '-150px';
+imagenEsquina5.style.width = 'clamp(1000px, 30vw, 2000px)';  // Ajusta el tamaño como prefieras
 imagenEsquina5.style.height = 'auto';
 imagenEsquina5.style.borderRadius = '8px';
 imagenEsquina5.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0)';
