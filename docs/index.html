@@ -4,41 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GAMBLIFICADOR</title>
-    <script type="module" crossorigin src="/gamblingtificator/assets/index-ndCASPhw.js"></script>
+    <script type="module" crossorigin src="/gamblingtificator/assets/index-CGzMDVPB.js"></script>
     <link rel="stylesheet" crossorigin href="/gamblingtificator/assets/index-cfwFnD81.css">
   </head>
   <body>
-    <!-- Ahora le decimos que el archivo está dentro de la carpeta src -->
+    
+    <!-- Pantalla de bienvenida (Fondo rosa y contraseña) -->
+    <div id="welcome-screen" class="pantalla-rosa">
+      
+      <!-- IMAGEN DECORATIVA -->
+      <!-- Recuerda cambiar "ruta-a-tu-imagen.jpg" por el nombre de tu foto (ej: "/src/assets/foto.jpg") -->
+      <img src="SCREEN.jpg" alt="Decoración" class="imagen-decorativa">
+
+      <h2 style="color: white; margin-bottom: 20px;">PASSWORD</h2>
+      
+      <input type="password" id="codigo-input" placeholder="SECRET CODE">
+      <button id="start-btn">ENTER</button>
+      
+      <p id="error-msg" style="display: none; color: #ff0000; font-weight: bold; background: white; padding: 5px; border-radius: 5px; margin-top: 15px;">
+        CODIGO INCORRECTO. Te falta aura
+      </p>
+
+    </div>
+
+    <!-- Script principal de Vite -->
   </body>
-  <!-- Pantalla de bienvenida / Overlay -->
-<div id="welcome-screen" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000000; /* Fondo totalmente opaco para que sea sorpresa */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-  color: white;
-  font-family: sans-serif;
-  text-align: center;
-">
-  <h1 style="font-size: clamp(24px, 5vw, 48px); margin-bottom: 20px;">BIENVENIDO AL GAMBLIFICADOR</h1>
-  <button id="start-btn" style="
-    padding: 15px 30px;
-    font-size: 20px;
-    font-weight: bold;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    transition: background 0.2s;
-  ">COMENZAR</button>
-</div>
 </html>

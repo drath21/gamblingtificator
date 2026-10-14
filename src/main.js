@@ -212,16 +212,18 @@ document.body.appendChild(cartelAutor);
 
 // --- PLAYLIST DE MÚSICA DE FONDO (TOTALMENTE ALEATORIA DESDE EL INICIO) ---
 const playlist = [
-  './deftones.mp3',
-  './deftones2.mp3',
-  './deftones3.mp3',
-  './linkin1.mp3',
-  './linkin2.mp3',
-  './bring1.mp3',
-  './bring2.mp3',
-  './falling1.mp3',
-  './korn1.mp3',
-  './disturbed1.mp3'
+  './d.mp3',
+  './d2.mp3',
+  './d3.mp3',
+  './d4.mp3',
+  './d5.mp3',
+  './l1.mp3',
+  './l2.mp3',
+  './b1.mp3',
+  './b2.mp3',
+  './f1.mp3',
+  './k1.mp3',
+  './db1.mp3'
 ];
 
 // Función para obtener un índice aleatorio evitando repetir la misma canción seguida
