@@ -1,30 +1,52 @@
-import './style.css';
 import * as THREE from 'three';
 
-// Lógica para quitar la pantalla de bienvenida y activar la música
+// --- PANTALLA DE ACCESO CON CÓDIGO NUMÉRICO ---
+
+const CODIGO_ACCESO = '91167'; // CAMBIA ESTO POR TU CÓDIGO
+
 const startBtn = document.getElementById('start-btn');
 const welcomeScreen = document.getElementById('welcome-screen');
+const accessForm = document.getElementById('access-form');
+const accessCode = document.getElementById('access-code');
+const accessError = document.getElementById('access-error');
 
-if (startBtn && welcomeScreen) {
-  startBtn.addEventListener('click', () => {
-    // 1. Oculta y elimina el cartel de bienvenida
+if (accessForm && welcomeScreen) {
+  accessForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const codigoIntroducido = accessCode.value.trim();
+
+    // Comprobar el código
+    if (codigoIntroducido !== CODIGO_ACCESO) {
+      accessError.textContent = '❌ Código incorrecto. Inténtalo de nuevo.';
+      accessCode.value = '';
+      accessCode.focus();
+      return;
+    }
+
+    // Código correcto: ocultar la pantalla de bienvenida
+    accessError.textContent = '';
+    startBtn.disabled = true;
+    accessCode.disabled = true;
+
     welcomeScreen.style.opacity = '0';
-    welcomeScreen.style.transition = 'opacity 0.5s ease';
-    
-    setTimeout(() => {
-      welcomeScreen.remove();
-    }, 500);
 
-    // 2. ACTIVAR LA MÚSICA DESDE AQUÍ
+    // Activar la música igual que en el comportamiento original
     musicaActiva = true;
     audioFondo.play().catch(() => {});
-    
-    // Actualizar el botón lateral visualmente a PLAY 🎵
+
+    // Actualizar el botón lateral de música
     const btnMusicaUI = document.getElementById('btn-musica');
+
     if (btnMusicaUI) {
       btnMusicaUI.textContent = 'PLAY 🎵';
       btnMusicaUI.style.background = '#00aa55';
     }
+
+    // Eliminar completamente la pantalla tras la transición
+    setTimeout(() => {
+      welcomeScreen.remove();
+    }, 500);
   });
 }
 
@@ -223,7 +245,7 @@ const playlist = [
   './b2.mp3',
   './f1.mp3',
   './k1.mp3',
-  './db1.mp3'
+  './db1h.mp3'
 ];
 
 // Función para obtener un índice aleatorio evitando repetir la misma canción seguida

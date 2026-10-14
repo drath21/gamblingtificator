@@ -1,44 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GAMBLIFICADOR</title>
-    <script type="module" crossorigin src="/gamblingtificator/assets/index-DQHekkT4.js"></script>
-    <link rel="stylesheet" crossorigin href="/gamblingtificator/assets/index-cfwFnD81.css">
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GAMBLIFICADOR</title>
+
+  <script type="module" crossorigin src="/gamblingtificator/assets/index-DbV_I1Q2.js"></script>
+  <link rel="stylesheet" crossorigin href="/gamblingtificator/assets/index-C3Gr3x7y.css">
+</head>
+
   <body>
-    <!-- Ahora le decimos que el archivo está dentro de la carpeta src -->
+    <!-- PANTALLA DE BIENVENIDA CON CÓDIGO -->
+    <div id="welcome-screen">
+
+      <div id="welcome-content">
+        <h1>BIENVENIDO AL GAMBLIFICADOR</h1>
+
+        <p>Introduce el código de acceso</p>
+
+        <form id="access-form">
+          <input
+            id="access-code"
+            type="password"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="12"
+            placeholder="Código numérico"
+            autocomplete="off"
+            required
+          />
+
+          <button id="start-btn" type="submit">
+            ENTRAR
+          </button>
+        </form>
+
+        <p id="access-error" role="alert" aria-live="polite"></p>
+      </div>
+
+    </div>
+
+    <!-- CARGA DEL PROYECTO -->
   </body>
-  <!-- Pantalla de bienvenida / Overlay -->
-<div id="welcome-screen" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000000; /* Fondo totalmente opaco para que sea sorpresa */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-  color: white;
-  font-family: sans-serif;
-  text-align: center;
-">
-  <h1 style="font-size: clamp(24px, 5vw, 48px); margin-bottom: 20px;">BIENVENIDO AL GAMBLIFICADOR</h1>
-  <button id="start-btn" style="
-    padding: 15px 30px;
-    font-size: 20px;
-    font-weight: bold;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    transition: background 0.2s;
-  ">COMENZAR</button>
-</div>
 </html>

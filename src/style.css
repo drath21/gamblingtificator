@@ -1,10 +1,126 @@
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Evita que salgan barras de desplazamiento */
-  background-color: #111111; /* Un color gris muy oscuro, casi negro */
+  overflow: hidden;
+  background-color: #111111;
 }
 
 canvas {
-  display: block; /* Asegura que el lienzo 3D se comporte correctamente */
+  display: block;
+}
+
+/* PANTALLA INICIAL */
+#welcome-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* FOTO DE FONDO */
+  background-image: url('/SCREEN.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* OSCURECE LIGERAMENTE LA FOTO */
+  background-color: #000;
+  background-blend-mode: normal;
+
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  box-sizing: border-box;
+}
+
+/* PANEL DEL TEXTO Y DEL CÓDIGO */
+#welcome-content {
+  width: min(90%, 500px);
+  box-sizing: border-box;
+  padding: clamp(20px, 4vw, 40px);
+
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid rgba(255, 215, 0, 0.55);
+  border-radius: 16px;
+
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+}
+
+#welcome-content h1 {
+  margin: 0 0 18px;
+  color: #ffd700;
+  font-size: clamp(24px, 5vw, 42px);
+  text-shadow: 0 2px 12px #000;
+}
+
+#welcome-content p {
+  font-size: 16px;
+  margin: 12px 0;
+}
+
+#access-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+#access-code {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 2px solid #666;
+  border-radius: 8px;
+
+  background: rgba(20, 20, 20, 0.95);
+  color: white;
+
+  font-size: 22px;
+  text-align: center;
+  letter-spacing: 5px;
+  outline: none;
+}
+
+#access-code:focus {
+  border-color: #ffd700;
+}
+
+#start-btn {
+  padding: 15px 24px;
+  border: none;
+  border-radius: 8px;
+
+  background: #28a745;
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: background 0.2s, transform 0.2s;
+}
+
+#start-btn:hover {
+  background: #218838;
+  transform: scale(1.02);
+}
+
+#access-error {
+  min-height: 20px;
+  margin-bottom: 0;
+  color: #ff5555;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#access-error:empty {
+  display: none;
 }
