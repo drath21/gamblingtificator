@@ -58,15 +58,19 @@ uiContainer.innerHTML = `
   <div style="display: flex; flex-direction: column; gap: 4px;">
     <div style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
     <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
+    <div style="display:flex; gap:6px;">
+      <button id="btn-modo-aleatorio" style="flex:1; background:#0088ff; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🎲 Aleatorio</button>
+      <button id="btn-modo-manual" style="flex:1; background:#333; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🖐️ Manual</button>
+    </div>
     <button id="btn-asignar" style="background:#0088ff; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">Asignar Porcentajes y Fichas</button>
   </div>
 
   <div style="font-size: 11px; font-weight: bold; color: #00ff88; border-top: 1px solid #333; padding-top: 4px;">Numeritos:</div>
   <div id="panel-asignacion" style="font-size: 10px; color: #ddd; max-height: 80px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;"></div>
 
-  <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">FICHAS (Haz clic para apostar):</div>
+  <div id="titulo-fichas" style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">FICHAS</div>
   <div id="panel-fichas-estado" style="font-size: 11px; color: #00ffaa; font-weight: bold;"></div>
-  <div id="tablero-apuestas" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; max-height: 120px; overflow-y: auto; background: rgba(0,64,26,0.8); padding: 6px; border-radius: 6px; border: 1px solid #ffd700;"></div>
+  <div id="tablero-apuestas" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; max-height: 120px; overflow-y: auto; background: rgba(0,64,26,0.8); padding: 6px; border-radius: 6px; border: 1px solid #ffd700;"></div>
 
   <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">HALL DE LOS GANADORES:</div>
   <div id="panel-historial" style="font-size: 10px; color: #ffcc00; max-height: 60px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px;">Sin tiradas todavía.</div>
@@ -149,11 +153,11 @@ imagenEsquina6.style.zIndex = '100';
 imagenEsquina6.style.pointerEvents = 'none';
 document.body.appendChild(imagenEsquina6);
 
-// --- LAYOUT PROPORCIONAL DE IMÁGENES (diseño de referencia: 1920x915) ---
+// --- LAYOUT PROPORCIONAL (diseño de referencia: 1920x915) ---
 const DISENO_W = 1920;
 const DISENO_H = 915;
+let escalaUI = 1;
 
-// Valores en píxeles tal y como se ven en pantalla completa
 const configImagenes = [
   { el: imagenEsquina1, bottom: 500, right: -75,  width: 576 }, // monster rain
   { el: imagenEsquina2, bottom: 15,  right: 1500, width: 150 }, // cigs
@@ -163,16 +167,28 @@ const configImagenes = [
 ];
 
 function ajustarImagenes() {
-  // Un único factor para todo, así se conserva la proporción de la composición
-  const escala = Math.min(window.innerWidth / DISENO_W, window.innerHeight / DISENO_H);
+  escalaUI = Math.min(window.innerWidth / DISENO_W, window.innerHeight / DISENO_H);
 
   configImagenes.forEach(({ el, bottom, right, width }) => {
     el.style.display = 'block';
-    el.style.bottom = (bottom * escala) + 'px';
-    el.style.right = (right * escala) + 'px';
-    el.style.width = (width * escala) + 'px';
+    el.style.bottom = (bottom * escalaUI) + 'px';
+    el.style.right = (right * escalaUI) + 'px';
+    el.style.width = (width * escalaUI) + 'px';
     el.style.height = 'auto';
   });
+
+  // Panel lateral
+  uiContainer.style.transformOrigin = 'top left';
+  uiContainer.style.transform = `scale(${escalaUI})`;
+  uiContainer.style.top = (20 * escalaUI) + 'px';
+  uiContainer.style.left = (20 * escalaUI) + 'px';
+  uiContainer.style.maxHeight = ((window.innerHeight - 40 * escalaUI) / escalaUI) + 'px';
+
+  // Cartelito del autor
+  cartelAutor.style.transformOrigin = 'bottom right';
+  cartelAutor.style.transform = `scale(${escalaUI})`;
+  cartelAutor.style.bottom = (15 * escalaUI) + 'px';
+  cartelAutor.style.right = (20 * escalaUI) + 'px';
 }
 
 // --- CARTELITO INFERIOR DERECHO (AUTOR) ---
@@ -193,7 +209,6 @@ cartelAutor.style.zIndex = '100';
 cartelAutor.style.pointerEvents = 'none';
 cartelAutor.textContent = 'by: el drath';
 document.body.appendChild(cartelAutor);
-
 
 // --- PLAYLIST DE MÚSICA DE FONDO (TOTALMENTE ALEATORIA DESDE EL INICIO) ---
 const playlist = [
@@ -406,7 +421,7 @@ function mostrarCartel(titulo, texto, subtexto = '') {
   sub.textContent = subtexto;
   sub.style.display = subtexto ? 'block' : 'none';
 
-  cartelCentro.style.transform = 'translate(-50%, -50%) scale(1)';
+  cartelCentro.style.transform = `translate(-50%, -50%) scale(${escalaUI})`;
   cartelCentro.style.opacity = '1';
   lanzarConfetiYDinero();
 }
@@ -490,78 +505,142 @@ function actualizarYRenderizarFX() {
 const ordenEuropeo = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const numerosRojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
-let asignacionNumeros = {}; 
+const TOTAL_ASIGNABLES = 36; // del 1 al 36: el 0 es de la casa y no se puede asignar
+const COLORES_JUGADORES = ['#ff4444', '#3388ff', '#ffaa00', '#aa44ff', '#00ffaa'];
+
+let modoAsignacion = 'aleatorio'; // 'aleatorio' | 'manual'
+let asignacionNumeros = {};
 let historialGanadores = [];
 let jugadoresLista = [];
 let turnoJugadorIndex = 0;
-let fichasRestantesPorJugador = {}; 
-let apuestasEnTablero = {}; 
+let fichasRestantesPorJugador = {};
 
 const panelAsignacion = document.getElementById('panel-asignacion');
 const panelHistorial = document.getElementById('panel-historial');
 const tableroApuestas = document.getElementById('tablero-apuestas');
 const panelFichasEstado = document.getElementById('panel-fichas-estado');
+const tituloFichas = document.getElementById('titulo-fichas');
+const btnModoAleatorio = document.getElementById('btn-modo-aleatorio');
+const btnModoManual = document.getElementById('btn-modo-manual');
+
+function actualizarBotonesModo() {
+  const esAleatorio = modoAsignacion === 'aleatorio';
+  btnModoAleatorio.style.background = esAleatorio ? '#0088ff' : '#333';
+  btnModoManual.style.background = esAleatorio ? '#333' : '#0088ff';
+  tituloFichas.textContent = esAleatorio
+    ? 'TABLERO (números asignados al azar):'
+    : 'FICHAS (haz clic en un número para reclamarlo):';
+}
+
+// Reparto que siempre suma exactamente TOTAL_ASIGNABLES (método del mayor resto)
+function calcularCuotas(lista) {
+  const exactos = lista.map(j => (j.porcentaje / 100) * TOTAL_ASIGNABLES);
+  const cuotas = exactos.map(Math.floor);
+  const faltan = TOTAL_ASIGNABLES - cuotas.reduce((a, b) => a + b, 0);
+  const orden = exactos
+    .map((e, i) => ({ i, resto: e - Math.floor(e) }))
+    .sort((a, b) => b.resto - a.resto);
+  for (let k = 0; k < faltan && k < orden.length; k++) cuotas[orden[k].i]++;
+  return cuotas;
+}
+
+// Primer jugador (desde un índice, dando la vuelta) al que aún le queden fichas
+function siguienteConFichas(desde) {
+  for (let k = 0; k < jugadoresLista.length; k++) {
+    const idx = (desde + k) % jugadoresLista.length;
+    if (fichasRestantesPorJugador[jugadoresLista[idx].nombre] > 0) return idx;
+  }
+  return -1;
+}
+
+function mostrarErrorAsignacion(mensaje) {
+  panelAsignacion.innerHTML = `<div style="color:#ff6666;">${mensaje}</div>`;
+}
+
+function renderPanelAsignacion() {
+  panelAsignacion.innerHTML = jugadoresLista.map(j => {
+    const nums = [...j.numeros].sort((a, b) => a - b).join(', ');
+    const pendientes = modoAsignacion === 'manual'
+      ? ` · faltan ${fichasRestantesPorJugador[j.nombre]}`
+      : '';
+    return `<div><span style="color:${j.color}; font-weight:bold;">${j.nombre} (${j.porcentaje}% · ${j.cuota}):</span> [${nums}]${pendientes}</div>`;
+  }).join('');
+}
 
 function asignarPorcentajes() {
   ocultarCartel();
   historialGanadores = [];
   panelHistorial.textContent = "Not Gambling yet";
-  apuestasEnTablero = {};
 
-  const textoInput = document.getElementById('input-jugadores').value;
-  const partes = textoInput.split(',');
-  
-  jugadoresLista = [];
-  let sumaPorcentajes = 0;
+  const partes = document.getElementById('input-jugadores').value.split(',');
+  const nuevaLista = [];
+  let suma = 0;
 
-  for (let parte of partes) {
+  for (const parte of partes) {
     const [nombre, porcentajeStr] = parte.split(':');
-    if (!nombre || !porcentajeStr) return;
-    const porcentaje = parseFloat(porcentajeStr.trim());
-    if (isNaN(porcentaje)) return;
-    sumaPorcentajes += porcentaje;
-    jugadoresLista.push({ nombre: nombre.trim(), porcentaje });
+    const porcentaje = parseFloat((porcentajeStr || '').trim());
+    if (!nombre || !nombre.trim() || isNaN(porcentaje)) {
+      mostrarErrorAsignacion('Formato incorrecto. Usa: Nombre:45, Nombre2:55');
+      return;
+    }
+    suma += porcentaje;
+    nuevaLista.push({ nombre: nombre.trim(), porcentaje });
   }
 
-  if (Math.abs(sumaPorcentajes - 100) > 0.1) return;
-
-  const todosLosNumeros = Array.from({length: 37}, (_, i) => i);
-  for (let i = todosLosNumeros.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [todosLosNumeros[i], todosLosNumeros[j]] = [todosLosNumeros[j], todosLosNumeros[i]];
+  if (Math.abs(suma - 100) > 0.1) {
+    mostrarErrorAsignacion(`Los porcentajes suman ${suma}%, deben sumar 100%.`);
+    return;
   }
 
+  jugadoresLista = nuevaLista;
   asignacionNumeros = {};
   fichasRestantesPorJugador = {};
+
+  // Números 1..36 mezclados (el 0 nunca se asigna)
+  const numerosDisponibles = Array.from({ length: TOTAL_ASIGNABLES }, (_, i) => i + 1);
+  for (let i = numerosDisponibles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [numerosDisponibles[i], numerosDisponibles[j]] = [numerosDisponibles[j], numerosDisponibles[i]];
+  }
+
+  const cuotas = calcularCuotas(jugadoresLista);
   let indiceNumero = 0;
-  let resumenHTML = '';
 
-  jugadoresLista.forEach((jugador, idxColor) => {
-    const colorAsignado = ['#ff4444', '#3388ff', '#ffaa00', '#aa44ff', '#00ffaa'][idxColor % 5];
-    const cantidadCasillas = Math.max(1, Math.round((jugador.porcentaje / 100) * 37));
-    
+  jugadoresLista.forEach((jugador, idx) => {
+    jugador.color = COLORES_JUGADORES[idx % COLORES_JUGADORES.length];
+    jugador.cuota = cuotas[idx];
     jugador.numeros = [];
-    jugador.color = colorAsignado;
-    for (let c = 0; c < cantidadCasillas && indiceNumero < todosLosNumeros.length; c++) {
-      const num = todosLosNumeros[indiceNumero++];
-      jugador.numeros.push(num);
-      asignacionNumeros[num] = jugador.nombre;
+
+    if (modoAsignacion === 'aleatorio') {
+      for (let c = 0; c < jugador.cuota; c++) {
+        const num = numerosDisponibles[indiceNumero++];
+        jugador.numeros.push(num);
+        asignacionNumeros[num] = jugador.nombre;
+      }
+      fichasRestantesPorJugador[jugador.nombre] = 0;
+    } else {
+      fichasRestantesPorJugador[jugador.nombre] = jugador.cuota;
     }
-
-    fichasRestantesPorJugador[jugador.nombre] = jugador.numeros.length;
-
-    resumenHTML += `<div><span style="color:${colorAsignado}; font-weight:bold;">${jugador.nombre} (${jugador.porcentaje}%):</span> [${jugador.numeros.join(', ')}]</div>`;
   });
 
-  panelAsignacion.innerHTML = resumenHTML;
-  turnoJugadorIndex = 0;
+  turnoJugadorIndex = Math.max(0, siguienteConFichas(0));
+  renderPanelAsignacion();
   actualizarTableroUI();
 }
 
 function actualizarTableroUI() {
   if (jugadoresLista.length === 0) return;
+  const esManual = modoAsignacion === 'manual';
+  const quedanFichas = siguienteConFichas(0) !== -1;
   const jugadorActual = jugadoresLista[turnoJugadorIndex];
-  panelFichasEstado.innerHTML = `Turno de colocación: <span style="color:${jugadorActual.color}">${jugadorActual.nombre}</span> (Fichas: ${fichasRestantesPorJugador[jugadorActual.nombre] || 0})`;
+
+  if (!esManual) {
+    panelFichasEstado.textContent = 'Modo aleatorio: números ya asignados.';
+  } else if (quedanFichas) {
+    panelFichasEstado.innerHTML = `Turno de colocación: <span style="color:${jugadorActual.color}">${jugadorActual.nombre}</span> (Fichas: ${fichasRestantesPorJugador[jugadorActual.nombre]})`;
+  } else {
+    panelFichasEstado.textContent = '✅ Todas las fichas colocadas';
+  }
 
   tableroApuestas.innerHTML = '';
   for (let i = 0; i <= 36; i++) {
@@ -569,17 +648,18 @@ function actualizarTableroUI() {
     casillaDiv.style.padding = '5px';
     casillaDiv.style.textAlign = 'center';
     casillaDiv.style.borderRadius = '4px';
-    casillaDiv.style.cursor = 'pointer';
     casillaDiv.style.fontWeight = 'bold';
     casillaDiv.style.fontSize = '11px';
+    casillaDiv.style.cursor = 'default';
 
     let colorFondo = '#1a1a1a';
     if (i === 0) colorFondo = '#006600';
     else if (numerosRojos.includes(i)) colorFondo = '#c40000';
     casillaDiv.style.background = colorFondo;
     casillaDiv.style.color = '#fff';
+    casillaDiv.style.overflow = 'hidden';
 
-    const ocupante = apuestasEnTablero[i];
+    const ocupante = asignacionNumeros[i];
     if (ocupante) {
       const jug = jugadoresLista.find(j => j.nombre === ocupante);
       casillaDiv.innerHTML = `${i}<br><span style="font-size:8px; background:${jug ? jug.color : '#fff'}; color:#000; padding:1px 2px; border-radius:2px;">${ocupante}</span>`;
@@ -587,21 +667,45 @@ function actualizarTableroUI() {
       casillaDiv.textContent = i;
     }
 
-    casillaDiv.addEventListener('click', () => {
-      const jAct = jugadoresLista[turnoJugadorIndex];
-      if (fichasRestantesPorJugador[jAct.nombre] > 0 && !apuestasEnTablero[i]) {
-        apuestasEnTablero[i] = jAct.nombre;
+    if (i === 0) {
+      casillaDiv.style.opacity = '0.55';
+      casillaDiv.style.cursor = 'not-allowed';
+      casillaDiv.title = 'El 0 no se puede asignar';
+    } else if (esManual && !ocupante && quedanFichas) {
+      casillaDiv.style.cursor = 'pointer';
+      casillaDiv.addEventListener('click', () => {
+        const jAct = jugadoresLista[turnoJugadorIndex];
+        if (!jAct || fichasRestantesPorJugador[jAct.nombre] <= 0 || asignacionNumeros[i]) return;
+
+        asignacionNumeros[i] = jAct.nombre;
+        jAct.numeros.push(i);
         fichasRestantesPorJugador[jAct.nombre]--;
-        turnoJugadorIndex = (turnoJugadorIndex + 1) % jugadoresLista.length;
+
+        const sig = siguienteConFichas(turnoJugadorIndex + 1);
+        if (sig !== -1) turnoJugadorIndex = sig;
+
+        renderPanelAsignacion();
         actualizarTableroUI();
-      }
-    });
+      });
+    }
 
     tableroApuestas.appendChild(casillaDiv);
   }
 }
 
+btnModoAleatorio.addEventListener('click', () => {
+  modoAsignacion = 'aleatorio';
+  actualizarBotonesModo();
+  asignarPorcentajes();
+});
+btnModoManual.addEventListener('click', () => {
+  modoAsignacion = 'manual';
+  actualizarBotonesModo();
+  asignarPorcentajes();
+});
+
 document.getElementById('btn-asignar').addEventListener('click', asignarPorcentajes);
+actualizarBotonesModo();
 setTimeout(asignarPorcentajes, 100);
 
 // 1. ESCENA Y CÁMARA
@@ -861,40 +965,28 @@ function evaluarGanador(numeroGanador) {
     }
   }
 
-  let infoGanadora = `<span style="color:${colorEstilo};">${nombreColor} ${numeroGanador}</span>`;
-  const propietarioAsignado = asignacionNumeros[numeroGanador];
-  const propietarioApuesta = apuestasEnTablero[numeroGanador];
-
-  let ganadorFinal = propietarioApuesta || propietarioAsignado;
+  const infoGanadora = `<span style="color:${colorEstilo};">${nombreColor} ${numeroGanador}</span>`;
+  const ganadorFinal = asignacionNumeros[numeroGanador];
   let textoGanadorHistorial = "";
 
   if (numeroGanador === 0) {
     reproducirErika();
     mostrarCartel("¡RULETA GAMBLER!", "OTRA VICTORIA PARA Elaryan");
     textoGanadorHistorial = `0 (Verde) ➔ Elaryan (¡Erika!)`;
-  } else if (numeroGanador === 7 && numerosRojos.includes(7)) {
-    reproducirRojo7();
-    let subtextoExtra = "Cuidado que asi banearon a Elaryan en GTA";
-    if (ganadorFinal) {
-      mostrarCartel("EL GANADOR ES...", `${ganadorFinal} <br><span style="font-size: 20px; font-weight: normal;">Salió el ${infoGanadora}</span>`, subtextoExtra);
-      textoGanadorHistorial = `ROJO 7 ➔ ${ganadorFinal} ${propietarioApuesta ? '(por apuesta)' : ''} (¡Rojo 7!)`;
-    } else {
-      mostrarCartel("RESULTADO", `Salió el ${infoGanadora}`, subtextoExtra);
-      textoGanadorHistorial = `ROJO 7 ➔ Sin dueño (¡Rojo 7!)`;
-    }
   } else {
-    reproducirVictoria();
-    let subtextoExtra = "";
-    if (numeroGanador === 7) {
-      subtextoExtra = "Cuidado que asi banearon a Elaryan en GTA";
-    }
+    const esRojo7 = numeroGanador === 7;
+    if (esRojo7) reproducirRojo7();
+    else reproducirVictoria();
+
+    const subtextoExtra = esRojo7 ? "Cuidado que asi banearon a Elaryan en GTA" : "";
+    const sufijo = esRojo7 ? " (¡Rojo 7!)" : "";
 
     if (ganadorFinal) {
       mostrarCartel("EL GANADOR ES...", `${ganadorFinal} <br><span style="font-size: 20px; font-weight: normal;">Salió el ${infoGanadora}</span>`, subtextoExtra);
-      textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ ${ganadorFinal} ${propietarioApuesta ? '(por apuesta)' : ''}`;
+      textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ ${ganadorFinal}${sufijo}`;
     } else {
       mostrarCartel("RESULTADO", `Salió el ${infoGanadora}`, subtextoExtra);
-      textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ Sin dueño`;
+      textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ Sin dueño${sufijo}`;
     }
   }
 
@@ -985,21 +1077,27 @@ function animate(tiempoActual) {
   renderer.render(scene, camera);
 }
 
-window.addEventListener('resize', () => {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+// Mantiene la ruleta con el mismo tamaño relativo que en pantalla completa:
+// si la ventana es más estrecha que 1920x915, la cámara se aleja para que quepa
+const ASPECTO_REF = DISENO_W / DISENO_H;
 
-  camera.aspect = width / height;
-  camera.position.set(0, 5.0, 4.5);
+function ajustarCamara() {
+  const aspecto = window.innerWidth / window.innerHeight;
+  const factor = Math.max(1, ASPECTO_REF / aspecto);
+
+  camera.aspect = aspecto;
+  camera.position.set(0, 5.0 * factor, 4.5 * factor);
   camera.lookAt(0, 0, 0);
-
   camera.updateProjectionMatrix();
-  renderer.setSize(width, height);
+}
 
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  ajustarCamara();
   ajustarImagenes();
 });
 
-// Ejecutar al cargar
+ajustarCamara();
 ajustarImagenes();
 
 animate(performance.now());
