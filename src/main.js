@@ -221,7 +221,7 @@ const playlist = [
   './bring2.mp3',
   './falling1.mp3',
   './korn1.mp3',
-  './disturbed1.mp3',
+  './disturbed1.mp3'
 ];
 
 // Función para obtener un índice aleatorio evitando repetir la misma canción seguida
