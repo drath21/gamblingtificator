@@ -214,7 +214,14 @@ document.body.appendChild(cartelAutor);
 const playlist = [
   './deftones.mp3',
   './deftones2.mp3',
-  './deftones3.mp3'
+  './deftones3.mp3',
+  './linkin1.mp3',
+  './linkin2.mp3',
+  './bring1.mp3',
+  './bring2.mp3',
+  './falling1.mp3',
+  './korn1.mp3',
+  './disturbed1.mp3',
 ];
 
 // Función para obtener un índice aleatorio evitando repetir la misma canción seguida
