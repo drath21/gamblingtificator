@@ -33,7 +33,7 @@ if (accessForm && welcomeScreen) {
 
     // Activar la música igual que en el comportamiento original
     musicaActiva = true;
-    audioFondo.play().catch(() => {});
+    reproducirFondo();
 
     // Actualizar el botón lateral de música
     const btnMusicaUI = document.getElementById('btn-musica');
@@ -258,26 +258,49 @@ function obtenerIndiceAleatorio(excluir = -1) {
   return nuevoIndice;
 }
 
-// Iniciar directamente con una canción aleatoria en lugar de empezar siempre por la 0
 let indiceCancionActual = Math.floor(Math.random() * playlist.length);
 const audioFondo = new Audio(playlist[indiceCancionActual]);
+audioFondo.preload = 'auto';
 audioFondo.volume = 0.5;
 
-// Pasar automáticamente a otra canción aleatoria al terminar la actual
+let musicaActiva = false;
+let fallosSeguidos = 0;
+
+function reproducirFondo() {
+  if (!musicaActiva) return;
+  audioFondo.play().catch((err) => {
+    // AbortError: llegó otra orden (cambio de canción o pausa); la siguiente se encarga
+    // NotAllowedError: el navegador exige un gesto del usuario; reintentar no sirve
+    if (err.name === 'AbortError' || err.name === 'NotAllowedError') return;
+    // Cualquier otro fallo: reintentar cuando haya datos suficientes
+    audioFondo.addEventListener('canplay', reproducirFondo, { once: true });
+  });
+}
+
+function cargarCancion(indice) {
+  indiceCancionActual = indice;
+  audioFondo.src = playlist[indice];
+  // Arrancar solo cuando el archivo esté listo (si la música sigue activada)
+  audioFondo.addEventListener('canplay', reproducirFondo, { once: true });
+}
+
 audioFondo.addEventListener('ended', () => {
-  indiceCancionActual = obtenerIndiceAleatorio(indiceCancionActual);
-  audioFondo.src = playlist[indiceCancionActual];
-  if (musicaActiva) {
-    audioFondo.play().catch(() => {});
-  }
+  cargarCancion(obtenerIndiceAleatorio(indiceCancionActual));
 });
 
-let musicaActiva = false;
+audioFondo.addEventListener('playing', () => { fallosSeguidos = 0; });
+
+// Si un MP3 falla (red, archivo roto...), saltar a otro en vez de quedarse en silencio
+audioFondo.addEventListener('error', () => {
+  if (++fallosSeguidos > playlist.length) return; // evita bucle infinito sin conexión
+  setTimeout(() => cargarCancion(obtenerIndiceAleatorio(indiceCancionActual)), 500);
+});
+
 document.getElementById('btn-musica').addEventListener('click', () => {
   musicaActiva = !musicaActiva;
   const btn = document.getElementById('btn-musica');
   if (musicaActiva) {
-    audioFondo.play().catch(() => {});
+    if (musicaActiva)reproducirFondo();
     btn.textContent = 'PLAY 🎵';
     btn.style.background = '#00aa55';
   } else {
@@ -297,14 +320,14 @@ audioRojo7.volume = 0.8;
 // Cuando termina Erika, reanudamos la música de fondo si estaba activada
 audioErika.addEventListener('ended', () => {
   if (musicaActiva) {
-    audioFondo.play().catch(() => {});
+    reproducirFondo();
   }
 });
 
 // Cuando termina el audio del Rojo 7, reanudamos la música de fondo si estaba activada
 audioRojo7.addEventListener('ended', () => {
   if (musicaActiva) {
-    audioFondo.play().catch(() => {});
+    reproducirFondo();
   }
 });
 
@@ -329,7 +352,7 @@ function detenerEspeciales() {
   audioErika.currentTime = 0;
   audioRojo7.pause();
   audioRojo7.currentTime = 0;
-  if (musicaActiva) audioFondo.play().catch(() => {});
+  if (musicaActiva) reproducirFondo();
 }
 
 // Audio sintético para efectos cortos (rebotes y victoria)
