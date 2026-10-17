@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="/src/style.css" />
   <link rel="icon" type="image/png" href="/favicon.png" />
 
+  <!-- INSTALABLE COMO APP (PWA) -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0b3d1f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Gamblingficador" />
+
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0QTVSJ4MHG"></script>
 <script>
@@ -50,6 +58,15 @@
       </div>
 
     </div>
+
+    <!-- SERVICE WORKER (solo en la web publicada, no en desarrollo) -->
+    <script>
+      if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
 
     <!-- CARGA DEL PROYECTO -->
     <script type="module" src="/src/main.js"></script>
