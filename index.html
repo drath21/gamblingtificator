@@ -14,6 +14,7 @@
   <meta name="theme-color" content="#0b3d1f" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="Gamblingficador" />
 
   <!-- Google tag (gtag.js) -->
@@ -33,9 +34,14 @@
     <div id="welcome-screen">
 
       <div id="welcome-content">
-        <h1>BIENVENIDO AL GAMBLINGFICADOR</h1>
+        <h1 data-i18n="welcome_titulo">BIENVENIDO AL GAMBLINGFICADOR</h1>
 
-        <p>Introduce el código de acceso</p>
+        <div id="lang-switch" role="group" aria-label="Idioma / Language">
+          <button type="button" data-lang="es" class="activo">ESPAÑOL</button>
+          <button type="button" data-lang="en">ENGLISH</button>
+        </div>
+
+        <p data-i18n="welcome_pide">Introduce el código de acceso</p>
 
         <form id="access-form">
           <input
@@ -45,11 +51,12 @@
             pattern="[0-9]*"
             maxlength="12"
             placeholder="Código numérico"
+            data-i18n-ph="welcome_placeholder"
             autocomplete="off"
             required
           />
 
-          <button id="start-btn" type="submit">
+          <button id="start-btn" type="submit" data-i18n="welcome_entrar">
             ENTRAR
           </button>
         </form>

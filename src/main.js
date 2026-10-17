@@ -1,5 +1,114 @@
 import * as THREE from 'three';
 
+// --- IDIOMAS (ES / EN) ---
+const TEXTOS = {
+  es: {
+    welcome_titulo: 'BIENVENIDO AL GAMBLINGFICADOR',
+    welcome_pide: 'Introduce el código de acceso',
+    welcome_placeholder: 'Código numérico',
+    welcome_entrar: 'ENTRAR',
+    welcome_error: '❌ Código incorrecto. Inténtalo de nuevo.',
+    panel_tamano: 'Tamaño del panel:',
+    tab_participantes: '👥 Participantes',
+    tab_sino: '✅ Sí / No',
+    info_sino: 'Sí 50% · No 50%. Los números se reparten siempre al azar.',
+    lbl_participantes: 'PARTICIPANTES (Deben sumar 100%):',
+    modo_aleatorio: '🎲 Aleatorio',
+    modo_manual: '🖐️ Manual',
+    btn_asignar: 'Asignar Porcentajes y Fichas',
+    btn_repartir: '🎲 Repartir números al azar',
+    numeritos: 'Numeritos:',
+    tablero_azar: 'TABLERO (números asignados al azar):',
+    fichas_manual: 'FICHAS (haz clic en un número para reclamarlo):',
+    hall: 'HALL DE LOS GANADORES:',
+    sin_tiradas: 'Sin tiradas todavía.',
+    btn_girar: 'ES HORA DEL GAMBLING!',
+    err_formato: 'Formato incorrecto. Usa: Nombre:45, Nombre2:55',
+    err_suma: 'Los porcentajes suman {suma}%, deben sumar 100%.',
+    faltan: ' · faltan {n}',
+    estado_aleatorio: 'Modo aleatorio: números ya asignados.',
+    turno_colocacion: 'Turno de colocación:',
+    fichas: 'Fichas',
+    estado_todas: '✅ Todas las fichas colocadas',
+    casilla_cero: 'El 0 no se puede asignar',
+    color_rojo: 'ROJO',
+    color_negro: 'NEGRO',
+    color_verde: 'VERDE',
+    cartel_ganador: 'EL GANADOR ES...',
+    cartel_respuesta: 'LA RESPUESTA ES...',
+    cartel_resultado: 'RESULTADO',
+    salio_el: 'Salió el',
+    cero_titulo: '¡RULETA GAMBLER!',
+    cero_texto: 'OTRA VICTORIA PARA Elaryan',
+    cero_hist: '0 (Verde) ➔ Elaryan (¡Erika!)',
+    rojo7_sub: 'Cuidado que asi banearon a Elaryan en GTA',
+    rojo7_sufijo: ' (¡Rojo 7!)',
+    sin_dueno: 'Sin dueño',
+    si: 'Sí',
+    no: 'No',
+    gira_movil: 'Gira el móvil para jugar en horizontal'
+  },
+  en: {
+    welcome_titulo: 'WELCOME TO THE GAMBLINGFICADOR',
+    welcome_pide: 'Enter the access code',
+    welcome_placeholder: 'Numeric code',
+    welcome_entrar: 'ENTER',
+    welcome_error: '❌ Wrong code. Try again.',
+    panel_tamano: 'Panel size:',
+    tab_participantes: '👥 Players',
+    tab_sino: '✅ Yes / No',
+    info_sino: 'Yes 50% · No 50%. Numbers are always assigned at random.',
+    lbl_participantes: 'PLAYERS (must add up to 100%):',
+    modo_aleatorio: '🎲 Random',
+    modo_manual: '🖐️ Manual',
+    btn_asignar: 'Assign Percentages & Chips',
+    btn_repartir: '🎲 Shuffle numbers',
+    numeritos: 'Numbers:',
+    tablero_azar: 'BOARD (numbers assigned at random):',
+    fichas_manual: 'CHIPS (click a number to claim it):',
+    hall: 'HALL OF WINNERS:',
+    sin_tiradas: 'No spins yet.',
+    btn_girar: "IT'S GAMBLING TIME!",
+    err_formato: 'Wrong format. Use: Name:45, Name2:55',
+    err_suma: 'Percentages add up to {suma}%, they must add up to 100%.',
+    faltan: ' · {n} left',
+    estado_aleatorio: 'Random mode: numbers already assigned.',
+    turno_colocacion: 'Placing turn:',
+    fichas: 'Chips',
+    estado_todas: '✅ All chips placed',
+    casilla_cero: '0 cannot be assigned',
+    color_rojo: 'RED',
+    color_negro: 'BLACK',
+    color_verde: 'GREEN',
+    cartel_ganador: 'THE WINNER IS...',
+    cartel_respuesta: 'THE ANSWER IS...',
+    cartel_resultado: 'RESULT',
+    salio_el: 'It landed on',
+    cero_titulo: 'GAMBLER ROULETTE!',
+    cero_texto: 'ANOTHER WIN FOR Elaryan',
+    cero_hist: '0 (Green) ➔ Elaryan (Erika!)',
+    rojo7_sub: "Careful, that's how Elaryan got banned in GTA",
+    rojo7_sufijo: ' (Red 7!)',
+    sin_dueno: 'No owner',
+    si: 'Yes',
+    no: 'No',
+    gira_movil: 'Rotate your phone to play in landscape'
+  }
+};
+
+let idioma = 'es';
+try {
+  const guardado = localStorage.getItem('gamblingficador-idioma');
+  if (guardado === 'es' || guardado === 'en') idioma = guardado;
+  else if (!String(navigator.language || 'es').toLowerCase().startsWith('es')) idioma = 'en';
+} catch (e) {}
+
+function t(clave, vars) {
+  let texto = (TEXTOS[idioma] && TEXTOS[idioma][clave]) ?? TEXTOS.es[clave] ?? clave;
+  if (vars) for (const k in vars) texto = texto.split('{' + k + '}').join(vars[k]);
+  return texto;
+}
+
 // --- PANTALLA DE ACCESO CON CÓDIGO NUMÉRICO ---
 
 const CODIGO_ACCESO = '91167'; // CAMBIA ESTO POR TU CÓDIGO
@@ -10,6 +119,16 @@ const accessForm = document.getElementById('access-form');
 const accessCode = document.getElementById('access-code');
 const accessError = document.getElementById('access-error');
 
+// Botones de idioma de la pantalla de inicio
+document.querySelectorAll('[data-lang]').forEach((boton) => {
+  boton.addEventListener('click', () => {
+    idioma = boton.dataset.lang;
+    try { localStorage.setItem('gamblingficador-idioma', idioma); } catch (e) {}
+    aplicarIdioma();
+    refrescarTextosDinamicos();
+  });
+});
+
 if (accessForm && welcomeScreen) {
   accessForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -18,7 +137,7 @@ if (accessForm && welcomeScreen) {
 
     // Comprobar el código
     if (codigoIntroducido !== CODIGO_ACCESO) {
-      accessError.textContent = '❌ Código incorrecto. Inténtalo de nuevo.';
+      accessError.textContent = t('welcome_error');
       accessCode.value = '';
       accessCode.focus();
       return;
@@ -78,7 +197,7 @@ uiContainer.innerHTML = `
   </div>
 
   <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px;">
-    <span style="font-size: 11px; color: #aaa;">Tamaño del panel:</span>
+    <span data-i18n="panel_tamano" style="font-size: 11px; color: #aaa;">Tamaño del panel:</span>
     <div style="display: flex; gap: 4px;">
       <button id="btn-zoom-menos" style="background:#444; color:white; border:none; width:30px; padding:4px 0; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">A−</button>
       <button id="btn-zoom-reset" style="background:#444; color:white; border:none; min-width:46px; padding:4px 6px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">100%</button>
@@ -86,28 +205,34 @@ uiContainer.innerHTML = `
     </div>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 4px;">
-    <div style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
-    <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
-    <div style="display:flex; gap:6px;">
-      <button id="btn-modo-aleatorio" style="flex:1; background:#0088ff; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🎲 Aleatorio</button>
-      <button id="btn-modo-manual" style="flex:1; background:#333; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🖐️ Manual</button>
-    </div>
-    <button id="btn-asignar" style="background:#0088ff; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">Asignar Porcentajes y Fichas</button>
+  <div style="display:flex; gap:6px;">
+    <button id="tab-participantes" data-i18n="tab_participantes" style="flex:1; background:#ffd700; color:#000; border:none; padding:7px 4px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">👥 Participantes</button>
+    <button id="tab-sino" data-i18n="tab_sino" style="flex:1; background:#333; color:#fff; border:none; padding:7px 4px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">✅ Sí / No</button>
   </div>
 
-  <div style="font-size: 11px; font-weight: bold; color: #00ff88; border-top: 1px solid #333; padding-top: 4px;">Numeritos:</div>
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <div id="lbl-participantes" data-i18n="lbl_participantes" style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
+    <div id="info-sino" data-i18n="info_sino" style="display:none; font-size: 11px; color:#cfe; background: rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px;"></div>
+    <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
+    <div id="fila-modos" style="display:flex; gap:6px;">
+      <button id="btn-modo-aleatorio" data-i18n="modo_aleatorio" style="flex:1; background:#0088ff; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🎲 Aleatorio</button>
+      <button id="btn-modo-manual" data-i18n="modo_manual" style="flex:1; background:#333; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🖐️ Manual</button>
+    </div>
+    <button id="btn-asignar" data-i18n="btn_asignar" style="background:#0088ff; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">Asignar Porcentajes y Fichas</button>
+  </div>
+
+  <div data-i18n="numeritos" style="font-size: 11px; font-weight: bold; color: #00ff88; border-top: 1px solid #333; padding-top: 4px;">Numeritos:</div>
   <div id="panel-asignacion" style="font-size: 10px; color: #ddd; max-height: 80px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;"></div>
 
   <div id="titulo-fichas" style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">FICHAS</div>
   <div id="panel-fichas-estado" style="font-size: 11px; color: #00ffaa; font-weight: bold;"></div>
   <div id="tablero-apuestas" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; max-height: 120px; overflow-y: auto; background: rgba(0,64,26,0.8); padding: 6px; border-radius: 6px; border: 1px solid #ffd700;"></div>
 
-  <div style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">HALL DE LOS GANADORES:</div>
+  <div data-i18n="hall" style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">HALL DE LOS GANADORES:</div>
   <div id="panel-historial" style="font-size: 10px; color: #ffcc00; max-height: 60px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px;">Sin tiradas todavía.</div>
 
   <button id="btn-girar" style="position: relative; overflow: hidden; background:#00aa55; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">
-    <span id="texto-btn-girar">ES HORA DEL GAMBLING!</span>
+    <span id="texto-btn-girar" data-i18n="btn_girar">ES HORA DEL GAMBLING!</span>
     <div id="efecto-fuego" style="position: absolute; inset:0; background: radial-gradient(circle, rgba(255,69,0,0.8) 0%, transparent 80%); opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div>
   </button>
 `;
@@ -190,6 +315,8 @@ document.body.appendChild(imagenEsquina6);
 
 // --- MÓVIL / TÁCTIL ---
 const ES_TACTIL = window.matchMedia('(pointer: coarse)').matches;
+// Móvil (no tablet): también cuando el navegador pide la "versión de escritorio"
+const ES_MOVIL = ES_TACTIL && Math.min(window.screen.width, window.screen.height) < 600;
 
 // --- TAMAÑO DEL PANEL (botones A− / 100% / A+) ---
 const NIVELES_ZOOM_PANEL = [0.85, 1, 1.25, 1.5, 1.75];
@@ -267,6 +394,15 @@ configImagenes.forEach(({ el }) => {
 const FRACCION_PANEL_VERTICAL = 0.55; // parte de la altura que ocupa el panel
 const ANCHO_PANEL_VERTICAL = 290;     // ancho de diseño del panel en vertical (px)
 
+// Móvil en vertical: la ruleta ocupa casi todo el ancho y las imágenes se juntan en la esquina
+const FRACCION_ANCHO_RULETA_MOVIL = 0.86;    // qué parte del ancho ocupa la ruleta (0 a 1)
+const ESCALA_DECORACION_MOVIL_VERTICAL = 0.7; // tamaño de la chica / latas respecto a la ruleta
+const FRACCION_ANCHO_RULETA_DISENO = 0.52;    // (medido en escritorio: no tocar)
+const ANCHO_RULETA_DISENO = 1005;             // (medido en escritorio: no tocar)
+// Si lo pones en true, en móvil en vertical sale un aviso para girar el móvil
+const AVISO_GIRAR_MOVIL = false;
+let factorCamara = 1;
+
 function medirVista() {
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -280,6 +416,12 @@ function medirVista() {
 function ajustarImagenes() {
   const vista = medirVista();
   escalaUI = Math.min(vista.w / DISENO_W, vista.h / DISENO_H);
+  const movilVertical = vista.vertical && ES_MOVIL;
+  if (movilVertical) {
+    // La ruleta ocupa más ancho en el móvil: el "escenario" se escala igual que ella
+    const aspectoVista = vista.w / vista.h;
+    escalaUI = (FRACCION_ANCHO_RULETA_DISENO * (ASPECTO_REF / aspectoVista) / factorCamara) * vista.w / ANCHO_RULETA_DISENO;
+  }
 
   // Imágenes flotantes (posiciones relativas a la capa, anclada abajo a la derecha)
   capaImagenes.style.height = vista.vertical ? vista.h + 'px' : '100%';
@@ -291,7 +433,7 @@ function ajustarImagenes() {
   // dx/dy es el hueco que sobra a cada lado (la ruleta siempre queda en el centro).
   const escalaAlto = vista.h / DISENO_H;
   const crece = vista.vertical ? CRECE_CON_ALTURA_VERTICAL : CRECE_CON_ALTURA_HORIZONTAL;
-  const escalaBorde = escalaUI + crece * (escalaAlto - escalaUI);
+  const escalaBorde = movilVertical ? escalaUI * ESCALA_DECORACION_MOVIL_VERTICAL : escalaUI + crece * (escalaAlto - escalaUI);
   const dx = (vista.w - DISENO_W * escalaUI) / 2;
   const dy = (vista.h - DISENO_H * escalaUI) / 2;
 
@@ -310,20 +452,27 @@ function ajustarImagenes() {
     } else {
       // 'borde' y 'lluvia': más grandes si hay altura, sin invadir la ruleta
       sc = escalaBorde;
-      const recorte = RECORTE_BORDE_DERECHO * (sc - escalaUI) * (width + right);
+      const recorte = movilVertical ? 0 : RECORTE_BORDE_DERECHO * (sc - escalaUI) * (width + right);
       der = right * sc - recorte;
       aba = bottom * sc;
-      if (tipo === 'lluvia') {
+      if (tipo === 'lluvia' && !movilVertical) {
         arr = (LLUVIA_TOP_DISENO * sc) + 'px';
         aba = 'auto';
       }
     }
+
+    // Que las imágenes colocadas junto a la ruleta nunca se salgan por la izquierda de la pantalla
+    if (tipo === 'rueda' || tipo === 'suelo') der = Math.min(der, vista.w - width * sc - 6);
 
     el.style.right = der + 'px';
     el.style.bottom = aba === 'auto' ? 'auto' : aba + 'px';
     el.style.top = arr;
     el.style.width = (width * sc) + 'px';
     el.style.height = 'auto';
+    // En el móvil la lluvia cae sobre la chica y aparece suavemente (sin borde cortado)
+    const desvLluvia = (tipo === 'lluvia' && movilVertical) ? 'linear-gradient(to bottom, transparent 0%, #000 35%)' : 'none';
+    el.style.maskImage = desvLluvia;
+    el.style.webkitMaskImage = desvLluvia;
   });
 
   const btnGirarEl = document.getElementById('btn-girar');
@@ -356,7 +505,7 @@ function ajustarImagenes() {
     // Panel abajo, centrado. Al aumentar el tamaño el panel se hace "más estrecho" por dentro,
     // así el texto crece sin que se salga de la pantalla
     const anchoLogico = ANCHO_PANEL_VERTICAL / z;
-    const k = Math.min(1.6 * z, (vista.w - 16) / anchoLogico);
+    const k = Math.min((ES_MOVIL ? 3.2 : 1.6) * z, (vista.w - 16) / anchoLogico);
     uiContainer.style.position = 'fixed';
     uiContainer.style.width = (anchoLogico - 30) + 'px';
     uiContainer.style.transformOrigin = 'bottom left';
@@ -386,9 +535,12 @@ function ajustarImagenes() {
     uiContainer.style.left = (20 * kPanel) + 'px';
     uiContainer.style.maxHeight = ((window.innerHeight - 40 * kPanel) / kPanel - 30) + 'px';
     uiContainer.style.border = 'none';
-    uiContainer.style.zIndex = '100';
+    uiContainer.style.zIndex = '200'; // por encima de las imágenes flotantes
     if (btnGirarEl) {
-      btnGirarEl.style.position = 'relative';
+      // Siempre visible al fondo del panel (si el panel tiene scroll en una pantalla baja)
+      btnGirarEl.style.position = 'sticky';
+      btnGirarEl.style.bottom = '0px';
+      btnGirarEl.style.zIndex = '5';
       btnGirarEl.style.padding = '10px';
     }
   }
@@ -755,6 +907,8 @@ const TOTAL_ASIGNABLES = 36; // del 1 al 36: el 0 es de la casa y no se puede as
 const COLORES_JUGADORES = ['#ff4444', '#3388ff', '#ffaa00', '#aa44ff', '#00ffaa'];
 
 let modoAsignacion = 'aleatorio'; // 'aleatorio' | 'manual'
+let tipoApuesta = 'participantes'; // 'participantes' | 'sino'
+let modoAntesDeSiNo = 'aleatorio';
 let asignacionNumeros = {};
 let historialGanadores = [];
 let jugadoresLista = [];
@@ -773,9 +927,7 @@ function actualizarBotonesModo() {
   const esAleatorio = modoAsignacion === 'aleatorio';
   btnModoAleatorio.style.background = esAleatorio ? '#0088ff' : '#333';
   btnModoManual.style.background = esAleatorio ? '#333' : '#0088ff';
-  tituloFichas.textContent = esAleatorio
-    ? 'TABLERO (números asignados al azar):'
-    : 'FICHAS (haz clic en un número para reclamarlo):';
+  tituloFichas.textContent = esAleatorio ? t('tablero_azar') : t('fichas_manual');
 }
 
 // Reparto que siempre suma exactamente TOTAL_ASIGNABLES (método del mayor resto)
@@ -807,7 +959,7 @@ function renderPanelAsignacion() {
   panelAsignacion.innerHTML = jugadoresLista.map(j => {
     const nums = [...j.numeros].sort((a, b) => a - b).join(', ');
     const pendientes = modoAsignacion === 'manual'
-      ? ` · faltan ${fichasRestantesPorJugador[j.nombre]}`
+      ? t('faltan', { n: fichasRestantesPorJugador[j.nombre] })
       : '';
     return `<div><span style="color:${j.color}; font-weight:bold;">${j.nombre} (${j.porcentaje}% · ${j.cuota}):</span> [${nums}]${pendientes}</div>`;
   }).join('');
@@ -816,26 +968,34 @@ function renderPanelAsignacion() {
 function asignarPorcentajes() {
   ocultarCartel();
   historialGanadores = [];
-  panelHistorial.textContent = "Not Gambling yet";
+  panelHistorial.textContent = t('sin_tiradas');
 
-  const partes = document.getElementById('input-jugadores').value.split(',');
   const nuevaLista = [];
   let suma = 0;
 
-  for (const parte of partes) {
-    const [nombre, porcentajeStr] = parte.split(':');
-    const porcentaje = parseFloat((porcentajeStr || '').trim());
-    if (!nombre || !nombre.trim() || isNaN(porcentaje)) {
-      mostrarErrorAsignacion('Formato incorrecto. Usa: Nombre:45, Nombre2:55');
+  if (tipoApuesta === 'sino') {
+    // Sí / No: siempre 50 % y 50 %, y números siempre al azar
+    nuevaLista.push({ nombre: t('si'), porcentaje: 50, colorFijo: '#00dd77' });
+    nuevaLista.push({ nombre: t('no'), porcentaje: 50, colorFijo: '#ff5555' });
+    suma = 100;
+  } else {
+    const partes = document.getElementById('input-jugadores').value.split(',');
+
+    for (const parte of partes) {
+      const [nombre, porcentajeStr] = parte.split(':');
+      const porcentaje = parseFloat((porcentajeStr || '').trim());
+      if (!nombre || !nombre.trim() || isNaN(porcentaje)) {
+        mostrarErrorAsignacion(t('err_formato'));
+        return;
+      }
+      suma += porcentaje;
+      nuevaLista.push({ nombre: nombre.trim(), porcentaje });
+    }
+
+    if (Math.abs(suma - 100) > 0.1) {
+      mostrarErrorAsignacion(t('err_suma', { suma }));
       return;
     }
-    suma += porcentaje;
-    nuevaLista.push({ nombre: nombre.trim(), porcentaje });
-  }
-
-  if (Math.abs(suma - 100) > 0.1) {
-    mostrarErrorAsignacion(`Los porcentajes suman ${suma}%, deben sumar 100%.`);
-    return;
   }
 
   jugadoresLista = nuevaLista;
@@ -853,7 +1013,7 @@ function asignarPorcentajes() {
   let indiceNumero = 0;
 
   jugadoresLista.forEach((jugador, idx) => {
-    jugador.color = COLORES_JUGADORES[idx % COLORES_JUGADORES.length];
+    jugador.color = jugador.colorFijo || COLORES_JUGADORES[idx % COLORES_JUGADORES.length];
     jugador.cuota = cuotas[idx];
     jugador.numeros = [];
 
@@ -881,11 +1041,11 @@ function actualizarTableroUI() {
   const jugadorActual = jugadoresLista[turnoJugadorIndex];
 
   if (!esManual) {
-    panelFichasEstado.textContent = 'Modo aleatorio: números ya asignados.';
+    panelFichasEstado.textContent = t('estado_aleatorio');
   } else if (quedanFichas) {
-    panelFichasEstado.innerHTML = `Turno de colocación: <span style="color:${jugadorActual.color}">${jugadorActual.nombre}</span> (Fichas: ${fichasRestantesPorJugador[jugadorActual.nombre]})`;
+    panelFichasEstado.innerHTML = `${t('turno_colocacion')} <span style="color:${jugadorActual.color}">${jugadorActual.nombre}</span> (${t('fichas')}: ${fichasRestantesPorJugador[jugadorActual.nombre]})`;
   } else {
-    panelFichasEstado.textContent = '✅ Todas las fichas colocadas';
+    panelFichasEstado.textContent = t('estado_todas');
   }
 
   tableroApuestas.innerHTML = '';
@@ -916,7 +1076,7 @@ function actualizarTableroUI() {
     if (i === 0) {
       casillaDiv.style.opacity = '0.55';
       casillaDiv.style.cursor = 'not-allowed';
-      casillaDiv.title = 'El 0 no se puede asignar';
+      casillaDiv.title = t('casilla_cero');
     } else if (esManual && !ocupante && quedanFichas) {
       casillaDiv.style.cursor = 'pointer';
       casillaDiv.addEventListener('click', () => {
@@ -951,6 +1111,59 @@ btnModoManual.addEventListener('click', () => {
 });
 
 document.getElementById('btn-asignar').addEventListener('click', asignarPorcentajes);
+
+// --- PESTAÑAS: PARTICIPANTES / SÍ-NO ---
+const tabParticipantes = document.getElementById('tab-participantes');
+const tabSiNo = document.getElementById('tab-sino');
+
+function actualizarPestanas() {
+  const sino = tipoApuesta === 'sino';
+  tabParticipantes.style.background = sino ? '#333' : '#ffd700';
+  tabParticipantes.style.color = sino ? '#fff' : '#000';
+  tabSiNo.style.background = sino ? '#ffd700' : '#333';
+  tabSiNo.style.color = sino ? '#000' : '#fff';
+  document.getElementById('lbl-participantes').style.display = sino ? 'none' : '';
+  document.getElementById('input-jugadores').style.display = sino ? 'none' : '';
+  document.getElementById('fila-modos').style.display = sino ? 'none' : 'flex';
+  document.getElementById('info-sino').style.display = sino ? 'block' : 'none';
+  const btnAsignar = document.getElementById('btn-asignar');
+  btnAsignar.dataset.i18n = sino ? 'btn_repartir' : 'btn_asignar';
+  btnAsignar.textContent = t(sino ? 'btn_repartir' : 'btn_asignar');
+}
+
+function cambiarTipoApuesta(tipo) {
+  if (tipo === tipoApuesta) return;
+  if (tipo === 'sino') {
+    modoAntesDeSiNo = modoAsignacion;
+    modoAsignacion = 'aleatorio'; // en Sí/No los números son siempre al azar
+  } else {
+    modoAsignacion = modoAntesDeSiNo;
+  }
+  tipoApuesta = tipo;
+  actualizarPestanas();
+  actualizarBotonesModo();
+  asignarPorcentajes();
+}
+
+tabParticipantes.addEventListener('click', () => cambiarTipoApuesta('participantes'));
+tabSiNo.addEventListener('click', () => cambiarTipoApuesta('sino'));
+
+// --- IDIOMA: aplica los textos fijos (los que llevan data-i18n) ---
+function aplicarIdioma() {
+  document.documentElement.lang = idioma;
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-lang]').forEach((b) => b.classList.toggle('activo', b.dataset.lang === idioma));
+}
+
+// Al cambiar de idioma se vuelve a repartir (solo se puede cambiar en la pantalla de inicio)
+function refrescarTextosDinamicos() {
+  actualizarBotonesModo();
+  asignarPorcentajes();
+}
+
+aplicarIdioma();
+actualizarPestanas();
 actualizarBotonesModo();
 setTimeout(asignarPorcentajes, 100);
 
@@ -966,6 +1179,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; 
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
 document.body.appendChild(renderer.domElement);
+renderer.domElement.style.position = 'fixed';
+renderer.domElement.style.top = '0';
+renderer.domElement.style.left = '0';
 
 // 1.5 LA MESA DE CASINO (Tapete verde)
 const matMesa = new THREE.MeshStandardMaterial({ color: 0x00401a, roughness: 0.9, metalness: 0.0 });
@@ -1200,14 +1416,14 @@ function iniciarGiro() {
 document.getElementById('btn-girar').addEventListener('click', iniciarGiro);
 
 function evaluarGanador(numeroGanador) {
-  let nombreColor = "VERDE";
+  let nombreColor = t('color_verde');
   let colorEstilo = "#00ff88";
   if (numeroGanador !== 0) {
     if (numerosRojos.includes(numeroGanador)) {
-      nombreColor = "ROJO";
+      nombreColor = t('color_rojo');
       colorEstilo = "#ff4444";
     } else {
-      nombreColor = "NEGRO";
+      nombreColor = t('color_negro');
       colorEstilo = "#cccccc";
     }
   }
@@ -1218,22 +1434,22 @@ function evaluarGanador(numeroGanador) {
 
   if (numeroGanador === 0) {
     reproducirErika();
-    mostrarCartel("¡RULETA GAMBLER!", "OTRA VICTORIA PARA Elaryan");
-    textoGanadorHistorial = `0 (Verde) ➔ Elaryan (¡Erika!)`;
+    mostrarCartel(t('cero_titulo'), t('cero_texto'));
+    textoGanadorHistorial = t('cero_hist');
   } else {
     const esRojo7 = numeroGanador === 7;
     if (esRojo7) reproducirRojo7();
     else reproducirVictoria();
 
-    const subtextoExtra = esRojo7 ? "Cuidado que asi banearon a Elaryan en GTA" : "";
-    const sufijo = esRojo7 ? " (¡Rojo 7!)" : "";
+    const subtextoExtra = esRojo7 ? t('rojo7_sub') : "";
+    const sufijo = esRojo7 ? t('rojo7_sufijo') : "";
 
     if (ganadorFinal) {
-      mostrarCartel("EL GANADOR ES...", `${ganadorFinal} <br><span style="font-size: 20px; font-weight: normal;">Salió el ${infoGanadora}</span>`, subtextoExtra);
+      mostrarCartel(tipoApuesta === 'sino' ? t('cartel_respuesta') : t('cartel_ganador'), `${ganadorFinal} <br><span style="font-size: 20px; font-weight: normal;">${t('salio_el')} ${infoGanadora}</span>`, subtextoExtra);
       textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ ${ganadorFinal}${sufijo}`;
     } else {
-      mostrarCartel("RESULTADO", `Salió el ${infoGanadora}`, subtextoExtra);
-      textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ Sin dueño${sufijo}`;
+      mostrarCartel(t('cartel_resultado'), `${t('salio_el')} ${infoGanadora}`, subtextoExtra);
+      textoGanadorHistorial = `${nombreColor} ${numeroGanador} ➔ ${t('sin_dueno')}${sufijo}`;
     }
   }
 
@@ -1333,7 +1549,12 @@ function ajustarCamara() {
   // El canvas ocupa toda la pantalla: así la mesa verde llega también detrás del panel
   renderer.setSize(window.innerWidth, window.innerHeight);
   const aspecto = vista.w / vista.h;
-  const factor = Math.max(1, ASPECTO_REF / aspecto);
+  let factor = Math.max(1, ASPECTO_REF / aspecto);
+  if (vista.vertical && ES_MOVIL) {
+    // En el móvil en vertical la ruleta se acerca para que ocupe casi todo el ancho
+    factor = Math.max(0.92, (FRACCION_ANCHO_RULETA_DISENO * (ASPECTO_REF / aspecto)) / FRACCION_ANCHO_RULETA_MOVIL);
+  }
+  factorCamara = factor;
 
   camera.aspect = aspecto;
   camera.position.set(0, 5.0 * factor, 4.5 * factor);
@@ -1347,12 +1568,32 @@ function ajustarCamara() {
   camera.updateProjectionMatrix();
 }
 
-window.addEventListener('resize', () => {
+// Aviso opcional para girar el móvil (ver AVISO_GIRAR_MOVIL arriba)
+const avisoGirar = document.createElement('div');
+avisoGirar.style.cssText = 'position:fixed; inset:0; z-index:5000; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:rgba(0,0,0,0.92); color:#ffd700; font-family:Arial,sans-serif; font-weight:bold; font-size:20px; text-align:center; padding:24px;';
+avisoGirar.innerHTML = '<div style="font-size:56px;">📱↔️</div><div id="aviso-girar-texto"></div>';
+document.body.appendChild(avisoGirar);
+
+function actualizarAvisoGirar() {
+  const mostrar = AVISO_GIRAR_MOVIL && ES_MOVIL && window.innerHeight > window.innerWidth;
+  avisoGirar.style.display = mostrar ? 'flex' : 'none';
+  document.getElementById('aviso-girar-texto').textContent = t('gira_movil');
+}
+
+function reajustarTodo() {
   ajustarCamara();
   ajustarImagenes();
-});
+  ajustarCanvasFX();
+  actualizarAvisoGirar();
+}
 
-ajustarCamara();
-ajustarImagenes();
+window.addEventListener('resize', reajustarTodo);
+// iOS tarda un momento en dar las medidas nuevas al girar el móvil (a veces se queda una banda negra)
+window.addEventListener('orientationchange', () => {
+  [60, 300, 800].forEach((ms) => setTimeout(() => { window.scrollTo(0, 0); reajustarTodo(); }, ms));
+});
+if (window.visualViewport) window.visualViewport.addEventListener('resize', reajustarTodo);
+
+reajustarTodo();
 
 animate(performance.now());
