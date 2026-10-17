@@ -77,6 +77,15 @@ uiContainer.innerHTML = `
     <button id="btn-musica" style="background:#444; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">MUTED 🔇</button>
   </div>
 
+  <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px;">
+    <span style="font-size: 11px; color: #aaa;">Tamaño del panel:</span>
+    <div style="display: flex; gap: 4px;">
+      <button id="btn-zoom-menos" style="background:#444; color:white; border:none; width:30px; padding:4px 0; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">A−</button>
+      <button id="btn-zoom-reset" style="background:#444; color:white; border:none; min-width:46px; padding:4px 6px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">100%</button>
+      <button id="btn-zoom-mas" style="background:#444; color:white; border:none; width:30px; padding:4px 0; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">A+</button>
+    </div>
+  </div>
+
   <div style="display: flex; flex-direction: column; gap: 4px;">
     <div style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
     <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
@@ -103,6 +112,10 @@ uiContainer.innerHTML = `
   </button>
 `;
 document.body.appendChild(uiContainer);
+uiContainer.id = 'panel-principal';
+// Sin esto, en pantallas bajas los bloques con scroll interno se encogen en vez de dejar
+// que el panel entero haga scroll, y la tabla queda cortada
+Array.from(uiContainer.children).forEach((hijo) => { hijo.style.flexShrink = '0'; });
 
 
 // --- IMAGEN FLOTANTE ABAJO A LA DERECHA ---
@@ -178,6 +191,29 @@ document.body.appendChild(imagenEsquina6);
 // --- MÓVIL / TÁCTIL ---
 const ES_TACTIL = window.matchMedia('(pointer: coarse)').matches;
 
+// --- TAMAÑO DEL PANEL (botones A− / 100% / A+) ---
+const NIVELES_ZOOM_PANEL = [0.85, 1, 1.25, 1.5, 1.75];
+const INDICE_ZOOM_NORMAL = 1;
+let indiceZoomPanel = INDICE_ZOOM_NORMAL;
+try {
+  const guardado = parseInt(localStorage.getItem('gamblingficador-zoom-panel'), 10);
+  if (guardado >= 0 && guardado < NIVELES_ZOOM_PANEL.length) indiceZoomPanel = guardado;
+} catch (e) {}
+
+function zoomPanel() {
+  return NIVELES_ZOOM_PANEL[indiceZoomPanel];
+}
+
+function cambiarZoomPanel(nuevoIndice) {
+  indiceZoomPanel = Math.max(0, Math.min(NIVELES_ZOOM_PANEL.length - 1, nuevoIndice));
+  try { localStorage.setItem('gamblingficador-zoom-panel', String(indiceZoomPanel)); } catch (e) {}
+  ajustarImagenes();
+}
+
+document.getElementById('btn-zoom-menos').addEventListener('click', () => cambiarZoomPanel(indiceZoomPanel - 1));
+document.getElementById('btn-zoom-mas').addEventListener('click', () => cambiarZoomPanel(indiceZoomPanel + 1));
+document.getElementById('btn-zoom-reset').addEventListener('click', () => cambiarZoomPanel(INDICE_ZOOM_NORMAL));
+
 // iOS Safari ignora user-scalable=no: bloqueamos el zoom con dos dedos a mano
 ['gesturestart', 'gesturechange', 'gestureend'].forEach((ev) => {
   document.addEventListener(ev, (e) => e.preventDefault());
@@ -195,6 +231,22 @@ const configImagenes = [
   { el: imagenEsquina5, bottom: -50, right: -150, width: 750 }, // MonsterW
   { el: imagenEsquina6, bottom: 0,   right: -20,  width: 576 }, // goth baddie
 ];
+
+// Capa que contiene las imágenes flotantes. En vertical solo cubre la zona de la ruleta
+// y se desvanece por abajo, para que las imágenes no queden cortadas en seco sobre la mesa.
+const capaImagenes = document.createElement('div');
+capaImagenes.style.position = 'fixed';
+capaImagenes.style.left = '0';
+capaImagenes.style.top = '0';
+capaImagenes.style.width = '100%';
+capaImagenes.style.overflow = 'hidden';
+capaImagenes.style.pointerEvents = 'none';
+capaImagenes.style.zIndex = '100';
+document.body.appendChild(capaImagenes);
+configImagenes.forEach(({ el }) => {
+  el.style.position = 'absolute';
+  capaImagenes.appendChild(el);
+});
 
 // En vertical (móvil, tablet en vertical) la pantalla se reparte:
 // arriba la ruleta y abajo el panel, que así se puede leer y usar.
@@ -215,9 +267,15 @@ function ajustarImagenes() {
   const vista = medirVista();
   escalaUI = Math.min(vista.w / DISENO_W, vista.h / DISENO_H);
 
+  // Imágenes flotantes (posiciones relativas a la capa, anclada abajo a la derecha)
+  capaImagenes.style.height = vista.vertical ? vista.h + 'px' : '100%';
+  const desvanecer = vista.vertical ? 'linear-gradient(to bottom, #000 calc(100% - 40px), transparent 100%)' : 'none';
+  capaImagenes.style.maskImage = desvanecer;
+  capaImagenes.style.webkitMaskImage = desvanecer;
+
   configImagenes.forEach(({ el, bottom, right, width }) => {
     el.style.display = 'block';
-    el.style.bottom = (vista.panelH + bottom * escalaUI) + 'px';
+    el.style.bottom = (bottom * escalaUI) + 'px';
     el.style.right = (right * escalaUI) + 'px';
     el.style.width = (width * escalaUI) + 'px';
     el.style.height = 'auto';
@@ -226,19 +284,43 @@ function ajustarImagenes() {
   const btnGirarEl = document.getElementById('btn-girar');
   const areaJugadores = document.getElementById('input-jugadores');
   // En pantallas táctiles, iOS hace zoom al enfocar un campo con letra < 16px
-  if (areaJugadores) areaJugadores.style.fontSize = ES_TACTIL ? '16px' : '11px';
+  if (areaJugadores) {
+    areaJugadores.style.fontSize = ES_TACTIL ? '16px' : '11px';
+    areaJugadores.style.boxSizing = 'border-box'; // que no se salga del panel
+  }
+
+  // Bloques con scroll propio: en vertical se quitan los límites y hace scroll todo el panel
+  [['panel-asignacion', '80px'], ['tablero-apuestas', '120px'], ['panel-historial', '60px']].forEach(([id, limite]) => {
+    const el = document.getElementById(id);
+    if (el) el.style.maxHeight = vista.vertical ? 'none' : limite;
+  });
+
+  // Etiqueta del botón de tamaño
+  const z = zoomPanel();
+
+  // En vertical el tablero usa menos columnas para que los nombres de las casillas quepan
+  const tableroEl = document.getElementById('tablero-apuestas');
+  if (tableroEl) {
+    const columnas = vista.vertical ? (z >= 1.5 ? 3 : 4) : 6;
+    tableroEl.style.gridTemplateColumns = `repeat(${columnas}, minmax(0, 1fr))`;
+  }
+  const btnZoomReset = document.getElementById('btn-zoom-reset');
+  if (btnZoomReset) btnZoomReset.textContent = Math.round(z * 100) + '%';
 
   if (vista.vertical) {
-    // Panel abajo, centrado y ocupando el ancho disponible
-    const k = Math.min(1.6, (vista.w - 16) / ANCHO_PANEL_VERTICAL);
+    // Panel abajo, centrado. Al aumentar el tamaño el panel se hace "más estrecho" por dentro,
+    // así el texto crece sin que se salga de la pantalla
+    const anchoLogico = ANCHO_PANEL_VERTICAL / z;
+    const k = Math.min(1.6 * z, (vista.w - 16) / anchoLogico);
     uiContainer.style.position = 'fixed';
-    uiContainer.style.width = (ANCHO_PANEL_VERTICAL - 30) + 'px';
+    uiContainer.style.width = (anchoLogico - 30) + 'px';
     uiContainer.style.transformOrigin = 'bottom left';
     uiContainer.style.transform = `scale(${k})`;
     uiContainer.style.top = 'auto';
     uiContainer.style.bottom = '4px';
-    uiContainer.style.left = ((vista.w - ANCHO_PANEL_VERTICAL * k) / 2) + 'px';
+    uiContainer.style.left = ((vista.w - anchoLogico * k) / 2) + 'px';
     uiContainer.style.maxHeight = ((vista.panelH - 8) / k - 30) + 'px';
+    uiContainer.style.border = '1px solid rgba(255, 215, 0, 0.45)';
     uiContainer.style.zIndex = '200';
     // El botón de girar siempre visible al fondo del panel
     if (btnGirarEl) {
@@ -249,7 +331,7 @@ function ajustarImagenes() {
     }
   } else {
     // Panel lateral (PC, tablet en horizontal). Mínimo 0.6 para que se lea en móvil horizontal
-    const kPanel = Math.max(escalaUI, 0.6);
+    const kPanel = Math.min(Math.max(escalaUI, 0.6) * z, (vista.w - 16) / 350);
     uiContainer.style.position = 'absolute';
     uiContainer.style.width = '320px';
     uiContainer.style.transformOrigin = 'top left';
@@ -257,7 +339,8 @@ function ajustarImagenes() {
     uiContainer.style.bottom = 'auto';
     uiContainer.style.top = (20 * kPanel) + 'px';
     uiContainer.style.left = (20 * kPanel) + 'px';
-    uiContainer.style.maxHeight = ((window.innerHeight - 40 * kPanel) / kPanel) + 'px';
+    uiContainer.style.maxHeight = ((window.innerHeight - 40 * kPanel) / kPanel - 30) + 'px';
+    uiContainer.style.border = 'none';
     uiContainer.style.zIndex = '100';
     if (btnGirarEl) {
       btnGirarEl.style.position = 'relative';
@@ -1202,13 +1285,20 @@ const ASPECTO_REF = DISENO_W / DISENO_H;
 
 function ajustarCamara() {
   const vista = medirVista();
-  renderer.setSize(vista.w, vista.h);
+  // El canvas ocupa toda la pantalla: así la mesa verde llega también detrás del panel
+  renderer.setSize(window.innerWidth, window.innerHeight);
   const aspecto = vista.w / vista.h;
   const factor = Math.max(1, ASPECTO_REF / aspecto);
 
   camera.aspect = aspecto;
   camera.position.set(0, 5.0 * factor, 4.5 * factor);
   camera.lookAt(0, 0, 0);
+  if (vista.vertical) {
+    // La ruleta se encuadra en la zona de arriba; el resto de la pantalla enseña más mesa
+    camera.setViewOffset(vista.w, vista.h, 0, 0, vista.w, window.innerHeight);
+  } else {
+    camera.clearViewOffset();
+  }
   camera.updateProjectionMatrix();
 }
 

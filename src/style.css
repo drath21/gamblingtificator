@@ -129,3 +129,36 @@ canvas {
 #access-error:empty {
   display: none;
 }
+
+/* BARRA LATERAL VISIBLE Y FÁCIL DE ARRASTRAR EN EL PANEL */
+#panel-principal,
+#panel-principal * {
+  scrollbar-width: auto;
+  scrollbar-color: #ffd700 rgba(255, 255, 255, 0.12);
+}
+
+#panel-principal::-webkit-scrollbar {
+  width: 14px;
+}
+
+#panel-principal::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+#panel-principal::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border-radius: 8px;
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  min-height: 48px;
+}
+
+/* Los bloques interiores con scroll, más discretos */
+#panel-principal *::-webkit-scrollbar {
+  width: 8px;
+}
+
+#panel-principal *::-webkit-scrollbar-thumb {
+  background: #b89b00;
+  border-radius: 6px;
+}
