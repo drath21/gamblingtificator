@@ -224,13 +224,27 @@ const DISENO_W = 1920;
 const DISENO_H = 915;
 let escalaUI = 1;
 
+// tipo de anclaje (para que en cualquier pantalla se vea como en escritorio):
+//  'rueda'   -> pegada a la ruleta (se coloca respecto al centro de la ruleta)
+//  'suelo'   -> abajo a la izquierda de la ruleta (como en escritorio, pegada al borde de abajo)
+//  'borde'   -> pegada abajo a la derecha, ocupando más alto cuando la pantalla es más alta
+//  'lluvia'  -> pegada ARRIBA a la derecha, para que las latas empiecen en el borde superior
 const configImagenes = [
-  { el: imagenEsquina1, bottom: 500, right: -75,  width: 576 }, // monster rain
-  { el: imagenEsquina2, bottom: 15,  right: 1500, width: 150 }, // cigs
-  { el: imagenEsquina3, bottom: 600, right: 1100, width: 300 }, // cat
-  { el: imagenEsquina5, bottom: -50, right: -150, width: 750 }, // MonsterW
-  { el: imagenEsquina6, bottom: 0,   right: -20,  width: 576 }, // goth baddie
+  { el: imagenEsquina1, bottom: 500, right: -75,  width: 576, tipo: 'lluvia' }, // monster rain
+  { el: imagenEsquina2, bottom: 15,  right: 1500, width: 150, tipo: 'suelo' },  // cigs
+  { el: imagenEsquina3, bottom: 600, right: 1100, width: 300, tipo: 'rueda' },  // cat
+  { el: imagenEsquina5, bottom: -50, right: -150, width: 750, tipo: 'borde' },  // MonsterW
+  { el: imagenEsquina6, bottom: 0,   right: -20,  width: 576, tipo: 'borde' },  // goth baddie
 ];
+
+// Cuánto crecen la chica, las latas blancas y la lluvia cuando la pantalla es más alta que
+// la de escritorio (0 = solo proporcional al ancho, 1 = ocupan toda la altura como en escritorio).
+const CRECE_CON_ALTURA_HORIZONTAL = 0.75;
+const CRECE_CON_ALTURA_VERTICAL = 0.25;
+// Qué parte de ese crecimiento se "esconde" por el borde derecho para no tapar la ruleta (0 a 1)
+const RECORTE_BORDE_DERECHO = 0.5;
+// Dónde empieza la lluvia de latas respecto al borde superior (px de diseño, negativo = fuera)
+const LLUVIA_TOP_DISENO = -30;
 
 // Capa que contiene las imágenes flotantes. En vertical solo cubre la zona de la ruleta
 // y se desvanece por abajo, para que las imágenes no queden cortadas en seco sobre la mesa.
@@ -273,11 +287,42 @@ function ajustarImagenes() {
   capaImagenes.style.maskImage = desvanecer;
   capaImagenes.style.webkitMaskImage = desvanecer;
 
-  configImagenes.forEach(({ el, bottom, right, width }) => {
+  // El "escenario" de diseño (1920x915) se escala al ancho/alto disponible y se centra:
+  // dx/dy es el hueco que sobra a cada lado (la ruleta siempre queda en el centro).
+  const escalaAlto = vista.h / DISENO_H;
+  const crece = vista.vertical ? CRECE_CON_ALTURA_VERTICAL : CRECE_CON_ALTURA_HORIZONTAL;
+  const escalaBorde = escalaUI + crece * (escalaAlto - escalaUI);
+  const dx = (vista.w - DISENO_W * escalaUI) / 2;
+  const dy = (vista.h - DISENO_H * escalaUI) / 2;
+
+  configImagenes.forEach(({ el, bottom, right, width, tipo }) => {
     el.style.display = 'block';
-    el.style.bottom = (bottom * escalaUI) + 'px';
-    el.style.right = (right * escalaUI) + 'px';
-    el.style.width = (width * escalaUI) + 'px';
+    let sc = escalaUI;
+    let der = right * escalaUI;
+    let aba = bottom * escalaUI;
+    let arr = 'auto';
+
+    if (tipo === 'rueda') {
+      der += dx;
+      aba += dy;
+    } else if (tipo === 'suelo') {
+      der += dx;
+    } else {
+      // 'borde' y 'lluvia': más grandes si hay altura, sin invadir la ruleta
+      sc = escalaBorde;
+      const recorte = RECORTE_BORDE_DERECHO * (sc - escalaUI) * (width + right);
+      der = right * sc - recorte;
+      aba = bottom * sc;
+      if (tipo === 'lluvia') {
+        arr = (LLUVIA_TOP_DISENO * sc) + 'px';
+        aba = 'auto';
+      }
+    }
+
+    el.style.right = der + 'px';
+    el.style.bottom = aba === 'auto' ? 'auto' : aba + 'px';
+    el.style.top = arr;
+    el.style.width = (width * sc) + 'px';
     el.style.height = 'auto';
   });
 
