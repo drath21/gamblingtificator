@@ -159,7 +159,7 @@ if (accessForm && welcomeScreen) {
 
     if (btnMusicaUI) {
       btnMusicaUI.textContent = 'PLAY 🎵';
-      btnMusicaUI.style.background = '#00aa55';
+      btnMusicaUI.classList.add('g-encendido');
     }
 
     // Eliminar completamente la pantalla tras la transición
@@ -177,63 +177,58 @@ uiContainer.style.left = '20px';
 uiContainer.style.width = '320px';
 uiContainer.style.maxHeight = '90vh';    // <--- Añadido aquí (nunca será más alto que el 90% de la pantalla)
 uiContainer.style.overflowY = 'auto';    // <--- Añadido aquí (activa la barra de scroll si el menú es muy largo)
-uiContainer.style.background = 'rgba(0, 0, 0, 0.9)';
 uiContainer.style.padding = '15px';
-uiContainer.style.borderRadius = '12px';
-uiContainer.style.fontFamily = 'Arial, sans-serif';
-uiContainer.style.color = '#fff';
 uiContainer.style.display = 'flex';
 uiContainer.style.flexDirection = 'column';
 uiContainer.style.gap = '10px';
-uiContainer.style.boxShadow = '0 8px 32px rgba(0,0,0,0.6)';
 uiContainer.style.zIndex = '100';
 
 uiContainer.innerHTML = `
-  <div style="font-size: 16px; font-weight: bold; color: #ffd700; text-align: center;">EL GAMBLINGFICADOR V. 6.7</div>
-  
-  <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px;">
-    <span style="font-size: 11px; color: #aaa;">Gambling Music:</span>
-    <button id="btn-musica" style="background:#444; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">MUTED 🔇</button>
+  <div class="g-titulo">EL GAMBLINGFICADOR <span class="g-version">V. 6.7</span></div>
+
+  <div class="g-fila">
+    <span class="g-etiqueta">Gambling Music:</span>
+    <button id="btn-musica" class="g-btn" style="padding:4px 10px; font-size:11px;">MUTED 🔇</button>
   </div>
 
-  <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px;">
-    <span data-i18n="panel_tamano" style="font-size: 11px; color: #aaa;">Tamaño del panel:</span>
+  <div class="g-fila">
+    <span data-i18n="panel_tamano" class="g-etiqueta">Tamaño del panel:</span>
     <div style="display: flex; gap: 4px;">
-      <button id="btn-zoom-menos" style="background:#444; color:white; border:none; width:30px; padding:4px 0; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">A−</button>
-      <button id="btn-zoom-reset" style="background:#444; color:white; border:none; min-width:46px; padding:4px 6px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">100%</button>
-      <button id="btn-zoom-mas" style="background:#444; color:white; border:none; width:30px; padding:4px 0; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">A+</button>
+      <button id="btn-zoom-menos" class="g-btn" style="width:30px; padding:4px 0; font-size:12px;">A−</button>
+      <button id="btn-zoom-reset" class="g-btn" style="min-width:46px; padding:4px 6px; font-size:11px;">100%</button>
+      <button id="btn-zoom-mas" class="g-btn" style="width:30px; padding:4px 0; font-size:12px;">A+</button>
     </div>
   </div>
 
   <div style="display:flex; gap:6px;">
-    <button id="tab-participantes" data-i18n="tab_participantes" style="flex:1; background:#ffd700; color:#000; border:none; padding:7px 4px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">👥 Participantes</button>
-    <button id="tab-sino" data-i18n="tab_sino" style="flex:1; background:#333; color:#fff; border:none; padding:7px 4px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">✅ Sí / No</button>
+    <button id="tab-participantes" data-i18n="tab_participantes" class="g-btn g-activo" style="flex:1; padding:7px 4px; font-size:11px;">👥 Participantes</button>
+    <button id="tab-sino" data-i18n="tab_sino" class="g-btn" style="flex:1; padding:7px 4px; font-size:11px;">✅ Sí / No</button>
   </div>
 
   <div style="display: flex; flex-direction: column; gap: 4px;">
-    <div id="lbl-participantes" data-i18n="lbl_participantes" style="font-size: 11px; color: #aaa;">PARTICIPANTES (Deben sumar 100%):</div>
-    <div id="info-sino" data-i18n="info_sino" style="display:none; font-size: 11px; color:#cfe; background: rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px;"></div>
-    <textarea id="input-jugadores" rows="2" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
+    <div id="lbl-participantes" data-i18n="lbl_participantes" class="g-etiqueta">PARTICIPANTES (Deben sumar 100%):</div>
+    <div id="info-sino" data-i18n="info_sino" class="g-caja" style="display:none; font-size: 11px; color: var(--rosa-claro);"></div>
+    <textarea id="input-jugadores" class="g-input" rows="2" style="width: 100%; padding: 6px; font-size: 11px; resize: none;">Paco Sanz:45, Erdogan:25, Netanyahu:30</textarea>
     <div id="fila-modos" style="display:flex; gap:6px;">
-      <button id="btn-modo-aleatorio" data-i18n="modo_aleatorio" style="flex:1; background:#0088ff; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🎲 Aleatorio</button>
-      <button id="btn-modo-manual" data-i18n="modo_manual" style="flex:1; background:#333; color:white; border:none; padding:5px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px;">🖐️ Manual</button>
+      <button id="btn-modo-aleatorio" data-i18n="modo_aleatorio" class="g-btn g-activo" style="flex:1; padding:5px; font-size:11px;">🎲 Aleatorio</button>
+      <button id="btn-modo-manual" data-i18n="modo_manual" class="g-btn" style="flex:1; padding:5px; font-size:11px;">🖐️ Manual</button>
     </div>
-    <button id="btn-asignar" data-i18n="btn_asignar" style="background:#0088ff; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">Asignar Porcentajes y Fichas</button>
+    <button id="btn-asignar" data-i18n="btn_asignar" class="g-btn g-btn-rosa" style="padding:6px; font-size:12px;">Asignar Porcentajes y Fichas</button>
   </div>
 
-  <div data-i18n="numeritos" style="font-size: 11px; font-weight: bold; color: #00ff88; border-top: 1px solid #333; padding-top: 4px;">Numeritos:</div>
-  <div id="panel-asignacion" style="font-size: 10px; color: #ddd; max-height: 80px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;"></div>
+  <div data-i18n="numeritos" class="g-seccion">Numeritos:</div>
+  <div id="panel-asignacion" class="g-caja" style="font-size: 10px; max-height: 80px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;"></div>
 
-  <div id="titulo-fichas" style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">FICHAS</div>
-  <div id="panel-fichas-estado" style="font-size: 11px; color: #00ffaa; font-weight: bold;"></div>
-  <div id="tablero-apuestas" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; max-height: 120px; overflow-y: auto; background: rgba(0,64,26,0.8); padding: 6px; border-radius: 6px; border: 1px solid #ffd700;"></div>
+  <div id="titulo-fichas" class="g-seccion">FICHAS</div>
+  <div id="panel-fichas-estado" style="font-size: 11px; font-weight: bold;"></div>
+  <div id="tablero-apuestas" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; max-height: 120px; overflow-y: auto; padding: 6px;"></div>
 
-  <div data-i18n="hall" style="font-size: 11px; font-weight: bold; color: #ffd700; border-top: 1px solid #333; padding-top: 4px;">HALL DE LOS GANADORES:</div>
-  <div id="panel-historial" style="font-size: 10px; color: #ffcc00; max-height: 60px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px;">Sin tiradas todavía.</div>
+  <div data-i18n="hall" class="g-seccion">HALL DE LOS GANADORES:</div>
+  <div id="panel-historial" class="g-caja" style="font-size: 10px; max-height: 60px; overflow-y: auto;">Sin tiradas todavía.</div>
 
-  <button id="btn-girar" style="position: relative; overflow: hidden; background:#00aa55; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">
+  <button id="btn-girar" style="position: relative; overflow: hidden; padding:10px; font-weight:bold; font-size:14px;">
     <span id="texto-btn-girar" data-i18n="btn_girar">ES HORA DEL GAMBLING!</span>
-    <div id="efecto-fuego" style="position: absolute; inset:0; background: radial-gradient(circle, rgba(255,69,0,0.8) 0%, transparent 80%); opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div>
+    <div id="efecto-fuego" style="position: absolute; inset:0; background: radial-gradient(circle, rgba(255,79,163,0.85) 0%, transparent 80%); opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div>
   </button>
 `;
 document.body.appendChild(uiContainer);
@@ -514,7 +509,6 @@ function ajustarImagenes() {
     uiContainer.style.bottom = '4px';
     uiContainer.style.left = ((vista.w - anchoLogico * k) / 2) + 'px';
     uiContainer.style.maxHeight = ((vista.panelH - 8) / k - 30) + 'px';
-    uiContainer.style.border = '1px solid rgba(255, 215, 0, 0.45)';
     uiContainer.style.zIndex = '200';
     // El botón de girar siempre visible al fondo del panel
     if (btnGirarEl) {
@@ -534,7 +528,6 @@ function ajustarImagenes() {
     uiContainer.style.top = (20 * kPanel) + 'px';
     uiContainer.style.left = (20 * kPanel) + 'px';
     uiContainer.style.maxHeight = ((window.innerHeight - 40 * kPanel) / kPanel - 30) + 'px';
-    uiContainer.style.border = 'none';
     uiContainer.style.zIndex = '200'; // por encima de las imágenes flotantes
     if (btnGirarEl) {
       // Siempre visible al fondo del panel (si el panel tiene scroll en una pantalla baja)
@@ -558,13 +551,13 @@ const cartelAutor = document.createElement('div');
 cartelAutor.style.position = 'fixed';
 cartelAutor.style.bottom = '15px';
 cartelAutor.style.right = '20px';
-cartelAutor.style.background = 'rgba(0, 0, 0, 0.75)';
-cartelAutor.style.border = '1px solid rgba(255, 215, 0, 0.4)';
+cartelAutor.style.background = 'rgba(10, 6, 16, 0.78)';
+cartelAutor.style.border = '1px solid rgba(255, 79, 163, 0.6)';
 cartelAutor.style.padding = '6px 12px';
 cartelAutor.style.borderRadius = '8px';
 cartelAutor.style.fontFamily = 'Arial, sans-serif';
 cartelAutor.style.fontSize = '12px';
-cartelAutor.style.color = '#ffd700';
+cartelAutor.style.color = '#39ff14';
 cartelAutor.style.fontWeight = 'bold';
 cartelAutor.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
 cartelAutor.style.zIndex = '100';
@@ -642,11 +635,11 @@ document.getElementById('btn-musica').addEventListener('click', () => {
   if (musicaActiva) {
     if (musicaActiva)reproducirFondo();
     btn.textContent = 'PLAY 🎵';
-    btn.style.background = '#00aa55';
+    btn.classList.add('g-encendido');
   } else {
     audioFondo.pause();
     btn.textContent = 'MUTED 🔇';
-    btn.style.background = '#444';
+    btn.classList.remove('g-encendido');
   }
 });
 
@@ -788,23 +781,26 @@ cartelCentro.style.position = 'absolute';
 cartelCentro.style.top = '50%';
 cartelCentro.style.left = '50%';
 cartelCentro.style.transform = 'translate(-50%, -50%) scale(0)';
-cartelCentro.style.background = 'rgba(0, 0, 0, 0.95)';
-cartelCentro.style.border = '3px solid #ffd700';
+cartelCentro.style.background = 'rgba(10, 6, 16, 0.96)';
+cartelCentro.style.border = '3px solid #39ff14';
 cartelCentro.style.padding = '25px 40px';
+cartelCentro.style.boxSizing = 'border-box';
+cartelCentro.style.width = 'max-content';   // que no se estreche en pantallas pequeñas
+cartelCentro.style.maxWidth = '340px';
 cartelCentro.style.borderRadius = '16px';
 cartelCentro.style.fontFamily = 'Arial, sans-serif';
 cartelCentro.style.color = '#fff';
 cartelCentro.style.textAlign = 'center';
-cartelCentro.style.boxShadow = '0 0 50px rgba(255, 215, 0, 0.6)';
+cartelCentro.style.boxShadow = '0 0 40px rgba(57, 255, 20, 0.45), 0 0 90px rgba(255, 79, 163, 0.4)';
 cartelCentro.style.zIndex = '200';
 cartelCentro.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
 cartelCentro.style.opacity = '0';
 cartelCentro.style.pointerEvents = 'none';
 
 cartelCentro.innerHTML = `
-  <div id="cartel-titulo" style="font-size: 22px; color: #ffd700; font-weight: bold; margin-bottom: 8px;">¡RESULTADO!</div>
-  <div id="cartel-texto" style="font-size: 28px; font-weight: bold; color: #00ff88;"></div>
-  <div id="cartel-subtexto" style="font-size: 15px; color: #ff4444; margin-top: 10px; font-style: italic;"></div>
+  <div id="cartel-titulo" style="font-family: var(--fuente-titulo); text-transform: lowercase; font-size: 30px; color: #ff4fa3; text-shadow: 0 0 12px rgba(255,79,163,0.6); margin-bottom: 8px;">¡RESULTADO!</div>
+  <div id="cartel-texto" style="font-size: 28px; font-weight: bold; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.5);"></div>
+  <div id="cartel-subtexto" style="font-size: 15px; color: #ff6fae; margin-top: 10px; font-style: italic;"></div>
 `;
 document.body.appendChild(cartelCentro);
 
@@ -861,7 +857,7 @@ function lanzarConfetiYDinero() {
       rot: Math.random() * 360,
       vrot: (Math.random() - 0.5) * 12,
       tipo: Math.random() > 0.4 ? 'confeti' : 'billete',
-      color: ['#ffd700', '#ff4444', '#00ff88', '#0088ff', '#ff00ff'][Math.floor(Math.random() * 5)],
+      color: ['#39ff14', '#ff4fa3', '#b388ff', '#4de1ff', '#ffffff'][Math.floor(Math.random() * 5)],
       size: Math.random() * 12 + 8
     });
   }
@@ -883,9 +879,9 @@ function actualizarYRenderizarFX() {
       ctxFX.fillStyle = p.color;
       ctxFX.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
     } else {
-      ctxFX.fillStyle = '#2e8b57';
+      ctxFX.fillStyle = '#1f1033';
       ctxFX.fillRect(-p.size, -p.size / 2, p.size * 2, p.size);
-      ctxFX.fillStyle = '#ffd700';
+      ctxFX.fillStyle = '#39ff14';
       ctxFX.font = 'bold 12px Arial';
       ctxFX.textAlign = 'center';
       ctxFX.textBaseline = 'middle';
@@ -904,7 +900,7 @@ const ordenEuropeo = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30
 const numerosRojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
 const TOTAL_ASIGNABLES = 36; // del 1 al 36: el 0 es de la casa y no se puede asignar
-const COLORES_JUGADORES = ['#ff4444', '#3388ff', '#ffaa00', '#aa44ff', '#00ffaa'];
+const COLORES_JUGADORES = ['#39ff14', '#ff4fa3', '#b388ff', '#4de1ff', '#ffd23f'];
 
 let modoAsignacion = 'aleatorio'; // 'aleatorio' | 'manual'
 let tipoApuesta = 'participantes'; // 'participantes' | 'sino'
@@ -925,8 +921,8 @@ const btnModoManual = document.getElementById('btn-modo-manual');
 
 function actualizarBotonesModo() {
   const esAleatorio = modoAsignacion === 'aleatorio';
-  btnModoAleatorio.style.background = esAleatorio ? '#0088ff' : '#333';
-  btnModoManual.style.background = esAleatorio ? '#333' : '#0088ff';
+  btnModoAleatorio.classList.toggle('g-activo', esAleatorio);
+  btnModoManual.classList.toggle('g-activo', !esAleatorio);
   tituloFichas.textContent = esAleatorio ? t('tablero_azar') : t('fichas_manual');
 }
 
@@ -952,7 +948,7 @@ function siguienteConFichas(desde) {
 }
 
 function mostrarErrorAsignacion(mensaje) {
-  panelAsignacion.innerHTML = `<div style="color:#ff6666;">${mensaje}</div>`;
+  panelAsignacion.innerHTML = `<div style="color:#ff6fae;">${mensaje}</div>`;
 }
 
 function renderPanelAsignacion() {
@@ -975,8 +971,8 @@ function asignarPorcentajes() {
 
   if (tipoApuesta === 'sino') {
     // Sí / No: siempre 50 % y 50 %, y números siempre al azar
-    nuevaLista.push({ nombre: t('si'), porcentaje: 50, colorFijo: '#00dd77' });
-    nuevaLista.push({ nombre: t('no'), porcentaje: 50, colorFijo: '#ff5555' });
+    nuevaLista.push({ nombre: t('si'), porcentaje: 50, colorFijo: '#39ff14' });
+    nuevaLista.push({ nombre: t('no'), porcentaje: 50, colorFijo: '#ff4fa3' });
     suma = 100;
   } else {
     const partes = document.getElementById('input-jugadores').value.split(',');
@@ -1058,9 +1054,9 @@ function actualizarTableroUI() {
     casillaDiv.style.fontSize = '11px';
     casillaDiv.style.cursor = 'default';
 
-    let colorFondo = '#1a1a1a';
-    if (i === 0) colorFondo = '#006600';
-    else if (numerosRojos.includes(i)) colorFondo = '#c40000';
+    let colorFondo = '#17111f';
+    if (i === 0) colorFondo = '#0a7d1c';
+    else if (numerosRojos.includes(i)) colorFondo = '#b3123c';
     casillaDiv.style.background = colorFondo;
     casillaDiv.style.color = '#fff';
     casillaDiv.style.overflow = 'hidden';
@@ -1118,10 +1114,8 @@ const tabSiNo = document.getElementById('tab-sino');
 
 function actualizarPestanas() {
   const sino = tipoApuesta === 'sino';
-  tabParticipantes.style.background = sino ? '#333' : '#ffd700';
-  tabParticipantes.style.color = sino ? '#fff' : '#000';
-  tabSiNo.style.background = sino ? '#ffd700' : '#333';
-  tabSiNo.style.color = sino ? '#000' : '#fff';
+  tabParticipantes.classList.toggle('g-activo', !sino);
+  tabSiNo.classList.toggle('g-activo', sino);
   document.getElementById('lbl-participantes').style.display = sino ? 'none' : '';
   document.getElementById('input-jugadores').style.display = sino ? 'none' : '';
   document.getElementById('fila-modos').style.display = sino ? 'none' : 'flex';
@@ -1619,11 +1613,11 @@ document.getElementById('btn-girar').addEventListener('click', iniciarGiro);
 
 function evaluarGanador(numeroGanador) {
   let nombreColor = t('color_verde');
-  let colorEstilo = "#00ff88";
+  let colorEstilo = "#39ff14";
   if (numeroGanador !== 0) {
     if (numerosRojos.includes(numeroGanador)) {
       nombreColor = t('color_rojo');
-      colorEstilo = "#ff4444";
+      colorEstilo = "#ff4f8b";
     } else {
       nombreColor = t('color_negro');
       colorEstilo = "#cccccc";
@@ -1778,7 +1772,7 @@ function ajustarCamara() {
 
 // Aviso opcional para girar el móvil (ver AVISO_GIRAR_MOVIL arriba)
 const avisoGirar = document.createElement('div');
-avisoGirar.style.cssText = 'position:fixed; inset:0; z-index:5000; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:rgba(0,0,0,0.92); color:#ffd700; font-family:Arial,sans-serif; font-weight:bold; font-size:20px; text-align:center; padding:24px;';
+avisoGirar.style.cssText = 'position:fixed; inset:0; z-index:5000; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:rgba(10,6,16,0.94); color:#39ff14; font-family:Arial,sans-serif; font-weight:bold; font-size:20px; text-align:center; padding:24px;';
 avisoGirar.innerHTML = '<div style="font-size:56px;">📱↔️</div><div id="aviso-girar-texto"></div>';
 document.body.appendChild(avisoGirar);
 
