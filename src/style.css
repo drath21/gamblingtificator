@@ -6,7 +6,7 @@ html, body {
 html {
   height: 100%;
   overflow: hidden;
-  background-color: #14391f;
+  background-color: #b58cf5; /* violeta del fondo kawaii */
 }
 
 /* Página anclada a la pantalla: en iPhone evita que el contenido se desplace

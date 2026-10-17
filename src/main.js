@@ -1183,14 +1183,216 @@ renderer.domElement.style.position = 'fixed';
 renderer.domElement.style.top = '0';
 renderer.domElement.style.left = '0';
 
-// 1.5 LA MESA DE CASINO (Tapete verde)
-const matMesa = new THREE.MeshStandardMaterial({ color: 0x00401a, roughness: 0.9, metalness: 0.0 });
-const geometriaMesa = new THREE.PlaneGeometry(50, 50); 
-const mesa = new THREE.Mesh(geometriaMesa, matMesa);
-mesa.rotation.x = -Math.PI / 2; 
-mesa.position.y = -0.2; 
-mesa.receiveShadow = true; 
-scene.add(mesa);
+// --- FONDO KAWAII (rosa y violeta, como el icono) ---
+// Todo se dibuja con código: no hace falta ninguna imagen nueva.
+function generadorAleatorio(semilla) {
+  let a = semilla >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let x = Math.imul(a ^ (a >>> 15), 1 | a);
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Capa 1: degradado diagonal rosa -> violeta con un brillo suave en el centro
+function dibujarBaseKawaii(canvas) {
+  const S = canvas.width;
+  const g = canvas.getContext('2d');
+  const grad = g.createLinearGradient(S * 0.30, S * 0.30, S * 0.70, S * 0.70);
+  grad.addColorStop(0, '#ff9ec9');
+  grad.addColorStop(0.5, '#cf8bf5');
+  grad.addColorStop(1, '#8a68ff');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, S, S);
+
+  const brillo = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S * 0.22);
+  brillo.addColorStop(0, 'rgba(255,255,255,0.45)');
+  brillo.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = brillo;
+  g.fillRect(0, 0, S, S);
+}
+
+// Capa 2: tesela transparente (se repite) con franjas de coche tuneado, destellos, corazones y huellitas
+function dibujarTeselaKawaii(canvas) {
+  const S = canvas.width;
+  const g = canvas.getContext('2d');
+  const azar = generadorAleatorio(2026);
+  g.clearRect(0, 0, S, S);
+
+  // Dibuja el elemento también al otro lado de la tesela para que encaje sin cortes al repetirse
+  const conRepeticion = (x, y, r, dibujar) => {
+    for (const dx of [-S, 0, S]) {
+      for (const dy of [-S, 0, S]) {
+        if (x + dx + r < 0 || x + dx - r > S || y + dy + r < 0 || y + dy - r > S) continue;
+        dibujar(x + dx, y + dy);
+      }
+    }
+  };
+
+  // Franjas diagonales tipo "livery" (se repiten sin costuras)
+  const franja = (a, ancho, alpha, color) => {
+    g.fillStyle = `rgba(${color},${alpha})`;
+    for (let k = 0; k <= 1; k++) {
+      const c1 = a + k * S;
+      const c2 = c1 + ancho;
+      g.beginPath();
+      g.moveTo(c1, 0);
+      g.lineTo(c2, 0);
+      g.lineTo(c2 - S, S);
+      g.lineTo(c1 - S, S);
+      g.closePath();
+      g.fill();
+    }
+  };
+  franja(S * 0.16, S * 0.075, 0.11, '255,255,255');
+  franja(S * 0.265, S * 0.018, 0.20, '255,255,255');
+  franja(S * 0.60, S * 0.040, 0.09, '255,214,235');
+
+  // Bokeh: círculos de luz muy suaves
+  for (let i = 0; i < 26; i++) {
+    const x = azar() * S, y = azar() * S, r = 18 + azar() * 56;
+    const alpha = 0.07 + azar() * 0.11;
+    conRepeticion(x, y, r, (cx, cy) => {
+      g.fillStyle = `rgba(255,255,255,${alpha})`;
+      g.beginPath();
+      g.arc(cx, cy, r, 0, Math.PI * 2);
+      g.fill();
+    });
+  }
+
+  // Huellitas de gato (para la chica gato)
+  const huella = (cx, cy, r, ang, alpha) => {
+    g.save();
+    g.translate(cx, cy);
+    g.rotate(ang);
+    g.fillStyle = `rgba(255,255,255,${alpha})`;
+    g.beginPath();
+    g.ellipse(0, r * 0.28, r * 0.52, r * 0.42, 0, 0, Math.PI * 2);
+    g.fill();
+    [[-0.62, -0.28, 0.2], [-0.22, -0.68, 0.22], [0.22, -0.68, 0.22], [0.62, -0.28, 0.2]].forEach(([px, py, pr]) => {
+      g.beginPath();
+      g.ellipse(px * r, py * r, pr * r, pr * r * 1.2, 0, 0, Math.PI * 2);
+      g.fill();
+    });
+    g.restore();
+  };
+  for (let i = 0; i < 9; i++) {
+    const x = azar() * S, y = azar() * S, r = 32 + azar() * 24, ang = (azar() - 0.5) * 1.2;
+    conRepeticion(x, y, r * 1.6, (cx, cy) => huella(cx, cy, r, ang, 0.20));
+  }
+
+  // Corazones
+  const corazon = (cx, cy, r, color) => {
+    // Todo en un solo trazo, para que no se marque la unión con la transparencia
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(cx - r * 0.5 + r * 0.52, cy - r * 0.35);
+    g.ellipse(cx - r * 0.5, cy - r * 0.35, r * 0.52, r * 0.52, 0, 0, Math.PI * 2);
+    g.moveTo(cx + r * 0.5 + r * 0.52, cy - r * 0.35);
+    g.ellipse(cx + r * 0.5, cy - r * 0.35, r * 0.52, r * 0.52, 0, 0, Math.PI * 2);
+    g.moveTo(cx - r * 0.98, cy - r * 0.12);
+    g.lineTo(cx + r * 0.98, cy - r * 0.12);
+    g.lineTo(cx, cy + r * 1.05);
+    g.closePath();
+    g.fill('nonzero');
+  };
+  for (let i = 0; i < 16; i++) {
+    const x = azar() * S, y = azar() * S, r = 22 + azar() * 28;
+    const color = azar() < 0.35 ? 'rgba(255,214,236,0.75)' : `rgba(255,255,255,${0.45 + azar() * 0.3})`;
+    conRepeticion(x, y, r * 1.2, (cx, cy) => corazon(cx, cy, r, color));
+  }
+
+  // Destellos de cuatro puntas (con un pequeño resplandor)
+  const destello = (cx, cy, r, alpha) => {
+    const halo = g.createRadialGradient(cx, cy, 0, cx, cy, r * 1.25);
+    halo.addColorStop(0, `rgba(255,255,255,${alpha * 0.35})`);
+    halo.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = halo;
+    g.beginPath();
+    g.arc(cx, cy, r * 1.25, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = `rgba(255,255,255,${alpha})`;
+    g.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const ang = Math.PI / 4 * i - Math.PI / 2;
+      const rr = i % 2 === 0 ? r : r * 0.26;
+      const px = cx + rr * Math.cos(ang), py = cy + rr * Math.sin(ang);
+      if (i === 0) g.moveTo(px, py); else g.lineTo(px, py);
+    }
+    g.closePath();
+    g.fill();
+  };
+  for (let i = 0; i < 24; i++) {
+    const x = azar() * S, y = azar() * S, r = 30 + azar() * 60;
+    const alpha = 0.55 + azar() * 0.35;
+    conRepeticion(x, y, r * 1.3, (cx, cy) => destello(cx, cy, r, alpha));
+  }
+
+  // Purpurina: destellitos pequeños por todas partes
+  for (let i = 0; i < 70; i++) {
+    const x = azar() * S, y = azar() * S, r = 8 + azar() * 9;
+    conRepeticion(x, y, r, (cx, cy) => destello(cx, cy, r, 0.6 + azar() * 0.3));
+  }
+}
+
+// Fondo de la mesa: 'kawaii' (rosa y violeta) o 'casino' (el tapete verde de siempre)
+const FONDO_MESA = 'kawaii';
+let texturaBrillos = null;
+
+if (FONDO_MESA === 'kawaii') {
+  const lienzoBase = document.createElement('canvas');
+  lienzoBase.width = lienzoBase.height = 1024;
+  dibujarBaseKawaii(lienzoBase);
+  const texturaBase = new THREE.CanvasTexture(lienzoBase);
+  texturaBase.colorSpace = THREE.SRGBColorSpace;
+
+  const lienzoTesela = document.createElement('canvas');
+  lienzoTesela.width = lienzoTesela.height = 2048;
+  dibujarTeselaKawaii(lienzoTesela);
+  texturaBrillos = new THREE.CanvasTexture(lienzoTesela);
+  texturaBrillos.colorSpace = THREE.SRGBColorSpace;
+  texturaBrillos.wrapS = texturaBrillos.wrapT = THREE.RepeatWrapping;
+  texturaBrillos.repeat.set(3, 3);
+
+  const anisotropia = (renderer.capabilities && renderer.capabilities.getMaxAnisotropy)
+    ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
+  texturaBase.anisotropy = anisotropia;
+  texturaBrillos.anisotropy = anisotropia;
+
+  // Sin luces (MeshBasicMaterial) para que los colores salgan tal cual están dibujados
+  const mesaBase = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.MeshBasicMaterial({ map: texturaBase }));
+  mesaBase.rotation.x = -Math.PI / 2;
+  mesaBase.position.y = -0.2;
+  scene.add(mesaBase);
+
+  const mesaBrillos = new THREE.Mesh(
+    new THREE.PlaneGeometry(50, 50),
+    new THREE.MeshBasicMaterial({ map: texturaBrillos, transparent: true, depthWrite: false })
+  );
+  mesaBrillos.rotation.x = -Math.PI / 2;
+  mesaBrillos.position.y = -0.195;
+  mesaBrillos.renderOrder = 1;
+  scene.add(mesaBrillos);
+
+  // Solo recibe la sombra de la ruleta
+  const mesaSombra = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.ShadowMaterial({ opacity: 0.35 }));
+  mesaSombra.rotation.x = -Math.PI / 2;
+  mesaSombra.position.y = -0.19;
+  mesaSombra.receiveShadow = true;
+  mesaSombra.renderOrder = 2;
+  scene.add(mesaSombra);
+} else {
+  // 1.5 LA MESA DE CASINO (Tapete verde)
+  const matMesa = new THREE.MeshStandardMaterial({ color: 0x00401a, roughness: 0.9, metalness: 0.0 });
+  const geometriaMesa = new THREE.PlaneGeometry(50, 50); 
+  const mesa = new THREE.Mesh(geometriaMesa, matMesa);
+  mesa.rotation.x = -Math.PI / 2; 
+  mesa.position.y = -0.2; 
+  mesa.receiveShadow = true; 
+  scene.add(mesa);
+
+}
 
 // 2. MATERIALES CLÁSICOS
 const matMadera = new THREE.MeshStandardMaterial({ color: 0x5a2e15, roughness: 0.3 }); 
@@ -1473,6 +1675,12 @@ function animate(tiempoActual) {
   requestAnimationFrame(animate);
   const delta = (tiempoActual - ultimoTiempo) / 1000;
   ultimoTiempo = tiempoActual;
+
+  // El fondo kawaii se desliza muy despacio
+  if (texturaBrillos && delta > 0 && delta < 1) {
+    texturaBrillos.offset.x = (texturaBrillos.offset.x + delta * 0.004) % 1;
+    texturaBrillos.offset.y = (texturaBrillos.offset.y + delta * 0.0025) % 1;
+  }
 
   actualizarYRenderizarFX();
 
