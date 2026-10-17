@@ -228,7 +228,7 @@ uiContainer.innerHTML = `
 
   <button id="btn-girar" style="position: relative; overflow: hidden; padding:10px; font-weight:bold; font-size:14px;">
     <span id="texto-btn-girar" data-i18n="btn_girar">ES HORA DEL GAMBLING!</span>
-    <div id="efecto-fuego" style="position: absolute; inset:0; background: radial-gradient(circle, rgba(255,79,163,0.85) 0%, transparent 80%); opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div>
+    <div id="efecto-fuego" style="position: absolute; inset:0; background: radial-gradient(circle, rgba(139,224,58,0.6) 0%, transparent 80%); opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div>
   </button>
 `;
 document.body.appendChild(uiContainer);
@@ -267,18 +267,55 @@ imagenEsquina2.style.pointerEvents = 'none';
 document.body.appendChild(imagenEsquina2);
 
 // --- TERCERA IMAGEN FLOTANTE ---
-const imagenEsquina3 = document.createElement('img');
-imagenEsquina3.src = './cat.gif';
-imagenEsquina3.style.position = 'fixed';
-imagenEsquina3.style.bottom = '600px';
-imagenEsquina3.style.right = '1100px';
-imagenEsquina3.style.width = 'clamp(200px, 30vw, 300px)';
-imagenEsquina3.style.height = 'auto';
-imagenEsquina3.style.borderRadius = '8px';
-imagenEsquina3.style.boxShadow = '0 4px 16px rgba(0,0,0,0)';
-imagenEsquina3.style.zIndex = '100';
-imagenEsquina3.style.pointerEvents = 'none';
-document.body.appendChild(imagenEsquina3);
+// El gato se ve quieto (primer fotograma) y solo se anima mientras gira la ruleta
+const imagenGato = document.createElement('img'); // el gif animado
+imagenGato.src = './cat.gif';
+imagenGato.style.width = '100%';
+imagenGato.style.height = 'auto';
+imagenGato.style.display = 'none';
+imagenGato.style.borderRadius = '8px';
+imagenGato.style.pointerEvents = 'none';
+
+const gatoQuieto = document.createElement('canvas'); // el primer fotograma del gif
+gatoQuieto.style.width = '100%';
+gatoQuieto.style.height = 'auto';
+gatoQuieto.style.display = 'block';
+gatoQuieto.style.borderRadius = '8px';
+gatoQuieto.style.pointerEvents = 'none';
+
+function dibujarGatoQuieto() {
+  if (!imagenGato.naturalWidth) return;
+  gatoQuieto.width = imagenGato.naturalWidth;
+  gatoQuieto.height = imagenGato.naturalHeight;
+  gatoQuieto.getContext('2d').drawImage(imagenGato, 0, 0);
+}
+imagenGato.addEventListener('load', () => {
+  // Solo la primera vez (cuando todavía está oculto): ahí el gif está en su primer fotograma
+  if (imagenGato.style.display === 'none') dibujarGatoQuieto();
+});
+if (imagenGato.complete) dibujarGatoQuieto();
+
+const contenedorGato = document.createElement('div');
+contenedorGato.style.position = 'fixed';
+contenedorGato.style.bottom = '600px';
+contenedorGato.style.right = '1100px';
+contenedorGato.style.width = 'clamp(200px, 30vw, 300px)';
+contenedorGato.style.zIndex = '100';
+contenedorGato.style.pointerEvents = 'none';
+contenedorGato.appendChild(gatoQuieto);
+contenedorGato.appendChild(imagenGato);
+document.body.appendChild(contenedorGato);
+
+function animarGato(animar) {
+  if (animar) {
+    gatoQuieto.style.display = 'none';
+    imagenGato.src = './cat.gif'; // vuelve a empezar la animación desde el principio
+    imagenGato.style.display = 'block';
+  } else {
+    imagenGato.style.display = 'none';
+    gatoQuieto.style.display = 'block';
+  }
+}
 
 // --- CUARTA IMAGEN FLOTANTE (MonsterW) ---
 const imagenEsquina5 = document.createElement('img');
@@ -354,7 +391,7 @@ let escalaUI = 1;
 const configImagenes = [
   { el: imagenEsquina1, bottom: 500, right: -75,  width: 576, tipo: 'lluvia' }, // monster rain
   { el: imagenEsquina2, bottom: 15,  right: 1500, width: 150, tipo: 'suelo' },  // cigs
-  { el: imagenEsquina3, bottom: 600, right: 1100, width: 300, tipo: 'rueda' },  // cat
+  { el: contenedorGato, bottom: 600, right: 1100, width: 300, tipo: 'rueda' },  // cat
   { el: imagenEsquina5, bottom: -50, right: -150, width: 750, tipo: 'borde' },  // MonsterW
   { el: imagenEsquina6, bottom: 0,   right: -20,  width: 576, tipo: 'borde' },  // goth baddie
 ];
@@ -551,13 +588,13 @@ const cartelAutor = document.createElement('div');
 cartelAutor.style.position = 'fixed';
 cartelAutor.style.bottom = '15px';
 cartelAutor.style.right = '20px';
-cartelAutor.style.background = 'rgba(10, 6, 16, 0.78)';
-cartelAutor.style.border = '1px solid rgba(255, 79, 163, 0.6)';
+cartelAutor.style.background = 'rgba(9, 7, 13, 0.78)';
+cartelAutor.style.border = '1px solid rgba(236, 231, 241, 0.25)';
 cartelAutor.style.padding = '6px 12px';
 cartelAutor.style.borderRadius = '8px';
 cartelAutor.style.fontFamily = 'Arial, sans-serif';
 cartelAutor.style.fontSize = '12px';
-cartelAutor.style.color = '#39ff14';
+cartelAutor.style.color = '#ece7f1';
 cartelAutor.style.fontWeight = 'bold';
 cartelAutor.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
 cartelAutor.style.zIndex = '100';
@@ -781,26 +818,26 @@ cartelCentro.style.position = 'absolute';
 cartelCentro.style.top = '50%';
 cartelCentro.style.left = '50%';
 cartelCentro.style.transform = 'translate(-50%, -50%) scale(0)';
-cartelCentro.style.background = 'rgba(10, 6, 16, 0.96)';
-cartelCentro.style.border = '3px solid #39ff14';
+cartelCentro.style.background = 'rgba(9, 7, 13, 0.96)';
+cartelCentro.style.border = '1px solid rgba(236, 231, 241, 0.45)';
 cartelCentro.style.padding = '25px 40px';
 cartelCentro.style.boxSizing = 'border-box';
 cartelCentro.style.width = 'max-content';   // que no se estreche en pantallas pequeñas
 cartelCentro.style.maxWidth = '340px';
-cartelCentro.style.borderRadius = '16px';
-cartelCentro.style.fontFamily = 'Arial, sans-serif';
+cartelCentro.style.borderRadius = '10px';
+cartelCentro.style.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
 cartelCentro.style.color = '#fff';
 cartelCentro.style.textAlign = 'center';
-cartelCentro.style.boxShadow = '0 0 40px rgba(57, 255, 20, 0.45), 0 0 90px rgba(255, 79, 163, 0.4)';
+cartelCentro.style.boxShadow = '0 0 50px rgba(212, 112, 159, 0.35), 0 0 110px rgba(111, 78, 166, 0.4)';
 cartelCentro.style.zIndex = '200';
 cartelCentro.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
 cartelCentro.style.opacity = '0';
 cartelCentro.style.pointerEvents = 'none';
 
 cartelCentro.innerHTML = `
-  <div id="cartel-titulo" style="font-family: var(--fuente-titulo); text-transform: lowercase; font-size: 30px; color: #ff4fa3; text-shadow: 0 0 12px rgba(255,79,163,0.6); margin-bottom: 8px;">¡RESULTADO!</div>
-  <div id="cartel-texto" style="font-size: 28px; font-weight: bold; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.5);"></div>
-  <div id="cartel-subtexto" style="font-size: 15px; color: #ff6fae; margin-top: 10px; font-style: italic;"></div>
+  <div id="cartel-titulo" style="font-size: 13px; font-weight: 300; letter-spacing: 0.32em; text-transform: uppercase; color: #f0c4d8; margin-bottom: 12px;">¡RESULTADO!</div>
+  <div id="cartel-texto" style="font-size: 28px; font-weight: 600; color: #ece7f1; text-shadow: 0 0 16px rgba(212,112,159,0.55);"></div>
+  <div id="cartel-subtexto" style="font-size: 14px; color: #e57aa8; margin-top: 10px; font-style: italic;"></div>
 `;
 document.body.appendChild(cartelCentro);
 
@@ -857,7 +894,7 @@ function lanzarConfetiYDinero() {
       rot: Math.random() * 360,
       vrot: (Math.random() - 0.5) * 12,
       tipo: Math.random() > 0.4 ? 'confeti' : 'billete',
-      color: ['#39ff14', '#ff4fa3', '#b388ff', '#4de1ff', '#ffffff'][Math.floor(Math.random() * 5)],
+      color: ['#d4709f', '#6f4ea6', '#ece7f1', '#8be03a', '#a3123a'][Math.floor(Math.random() * 5)],
       size: Math.random() * 12 + 8
     });
   }
@@ -881,7 +918,7 @@ function actualizarYRenderizarFX() {
     } else {
       ctxFX.fillStyle = '#1f1033';
       ctxFX.fillRect(-p.size, -p.size / 2, p.size * 2, p.size);
-      ctxFX.fillStyle = '#39ff14';
+      ctxFX.fillStyle = '#8be03a';
       ctxFX.font = 'bold 12px Arial';
       ctxFX.textAlign = 'center';
       ctxFX.textBaseline = 'middle';
@@ -900,7 +937,7 @@ const ordenEuropeo = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30
 const numerosRojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
 const TOTAL_ASIGNABLES = 36; // del 1 al 36: el 0 es de la casa y no se puede asignar
-const COLORES_JUGADORES = ['#39ff14', '#ff4fa3', '#b388ff', '#4de1ff', '#ffd23f'];
+const COLORES_JUGADORES = ['#8be03a', '#e57aa8', '#a98bff', '#5fd0e8', '#e8c56a'];
 
 let modoAsignacion = 'aleatorio'; // 'aleatorio' | 'manual'
 let tipoApuesta = 'participantes'; // 'participantes' | 'sino'
@@ -948,7 +985,7 @@ function siguienteConFichas(desde) {
 }
 
 function mostrarErrorAsignacion(mensaje) {
-  panelAsignacion.innerHTML = `<div style="color:#ff6fae;">${mensaje}</div>`;
+  panelAsignacion.innerHTML = `<div style="color:#e57aa8;">${mensaje}</div>`;
 }
 
 function renderPanelAsignacion() {
@@ -971,8 +1008,8 @@ function asignarPorcentajes() {
 
   if (tipoApuesta === 'sino') {
     // Sí / No: siempre 50 % y 50 %, y números siempre al azar
-    nuevaLista.push({ nombre: t('si'), porcentaje: 50, colorFijo: '#39ff14' });
-    nuevaLista.push({ nombre: t('no'), porcentaje: 50, colorFijo: '#ff4fa3' });
+    nuevaLista.push({ nombre: t('si'), porcentaje: 50, colorFijo: '#8be03a' });
+    nuevaLista.push({ nombre: t('no'), porcentaje: 50, colorFijo: '#e57aa8' });
     suma = 100;
   } else {
     const partes = document.getElementById('input-jugadores').value.split(',');
@@ -1054,9 +1091,9 @@ function actualizarTableroUI() {
     casillaDiv.style.fontSize = '11px';
     casillaDiv.style.cursor = 'default';
 
-    let colorFondo = '#17111f';
-    if (i === 0) colorFondo = '#0a7d1c';
-    else if (numerosRojos.includes(i)) colorFondo = '#b3123c';
+    let colorFondo = '#120e18';
+    if (i === 0) colorFondo = '#1f6b2b';
+    else if (numerosRojos.includes(i)) colorFondo = '#8f1233';
     casillaDiv.style.background = colorFondo;
     casillaDiv.style.color = '#fff';
     casillaDiv.style.overflow = 'hidden';
@@ -1591,6 +1628,7 @@ let casillaGanadora = null;
 const efectoFuego = document.getElementById('efecto-fuego');
 
 function iniciarGiro() {
+  animarGato(true);
   ocultarCartel();
   detenerEspeciales();
 
@@ -1612,12 +1650,13 @@ function iniciarGiro() {
 document.getElementById('btn-girar').addEventListener('click', iniciarGiro);
 
 function evaluarGanador(numeroGanador) {
+  animarGato(false);
   let nombreColor = t('color_verde');
-  let colorEstilo = "#39ff14";
+  let colorEstilo = "#8be03a";
   if (numeroGanador !== 0) {
     if (numerosRojos.includes(numeroGanador)) {
       nombreColor = t('color_rojo');
-      colorEstilo = "#ff4f8b";
+      colorEstilo = "#e0426b";
     } else {
       nombreColor = t('color_negro');
       colorEstilo = "#cccccc";
@@ -1772,7 +1811,7 @@ function ajustarCamara() {
 
 // Aviso opcional para girar el móvil (ver AVISO_GIRAR_MOVIL arriba)
 const avisoGirar = document.createElement('div');
-avisoGirar.style.cssText = 'position:fixed; inset:0; z-index:5000; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:rgba(10,6,16,0.94); color:#39ff14; font-family:Arial,sans-serif; font-weight:bold; font-size:20px; text-align:center; padding:24px;';
+avisoGirar.style.cssText = 'position:fixed; inset:0; z-index:5000; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:rgba(9,7,13,0.94); color:#ece7f1; font-family:Arial,sans-serif; font-weight:bold; font-size:20px; text-align:center; padding:24px;';
 avisoGirar.innerHTML = '<div style="font-size:56px;">📱↔️</div><div id="aviso-girar-texto"></div>';
 document.body.appendChild(avisoGirar);
 
