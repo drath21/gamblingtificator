@@ -175,6 +175,14 @@ imagenEsquina6.style.zIndex = '100';
 imagenEsquina6.style.pointerEvents = 'none';
 document.body.appendChild(imagenEsquina6);
 
+// --- MÓVIL / TÁCTIL ---
+const ES_TACTIL = window.matchMedia('(pointer: coarse)').matches;
+
+// iOS Safari ignora user-scalable=no: bloqueamos el zoom con dos dedos a mano
+['gesturestart', 'gesturechange', 'gestureend'].forEach((ev) => {
+  document.addEventListener(ev, (e) => e.preventDefault());
+});
+
 // --- LAYOUT PROPORCIONAL (diseño de referencia: 1920x915) ---
 const DISENO_W = 1920;
 const DISENO_H = 915;
@@ -188,29 +196,81 @@ const configImagenes = [
   { el: imagenEsquina6, bottom: 0,   right: -20,  width: 576 }, // goth baddie
 ];
 
+// En vertical (móvil, tablet en vertical) la pantalla se reparte:
+// arriba la ruleta y abajo el panel, que así se puede leer y usar.
+const FRACCION_PANEL_VERTICAL = 0.55; // parte de la altura que ocupa el panel
+const ANCHO_PANEL_VERTICAL = 290;     // ancho de diseño del panel en vertical (px)
+
+function medirVista() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  if (h > w) {
+    const panelH = Math.round(h * FRACCION_PANEL_VERTICAL);
+    return { w, h: h - panelH, panelH, vertical: true };
+  }
+  return { w, h, panelH: 0, vertical: false };
+}
+
 function ajustarImagenes() {
-  escalaUI = Math.min(window.innerWidth / DISENO_W, window.innerHeight / DISENO_H);
+  const vista = medirVista();
+  escalaUI = Math.min(vista.w / DISENO_W, vista.h / DISENO_H);
 
   configImagenes.forEach(({ el, bottom, right, width }) => {
     el.style.display = 'block';
-    el.style.bottom = (bottom * escalaUI) + 'px';
+    el.style.bottom = (vista.panelH + bottom * escalaUI) + 'px';
     el.style.right = (right * escalaUI) + 'px';
     el.style.width = (width * escalaUI) + 'px';
     el.style.height = 'auto';
   });
 
-  // Panel lateral
-  uiContainer.style.transformOrigin = 'top left';
-  uiContainer.style.transform = `scale(${escalaUI})`;
-  uiContainer.style.top = (20 * escalaUI) + 'px';
-  uiContainer.style.left = (20 * escalaUI) + 'px';
-  uiContainer.style.maxHeight = ((window.innerHeight - 40 * escalaUI) / escalaUI) + 'px';
+  const btnGirarEl = document.getElementById('btn-girar');
+  const areaJugadores = document.getElementById('input-jugadores');
+  // En pantallas táctiles, iOS hace zoom al enfocar un campo con letra < 16px
+  if (areaJugadores) areaJugadores.style.fontSize = ES_TACTIL ? '16px' : '11px';
+
+  if (vista.vertical) {
+    // Panel abajo, centrado y ocupando el ancho disponible
+    const k = Math.min(1.6, (vista.w - 16) / ANCHO_PANEL_VERTICAL);
+    uiContainer.style.position = 'fixed';
+    uiContainer.style.width = (ANCHO_PANEL_VERTICAL - 30) + 'px';
+    uiContainer.style.transformOrigin = 'bottom left';
+    uiContainer.style.transform = `scale(${k})`;
+    uiContainer.style.top = 'auto';
+    uiContainer.style.bottom = '4px';
+    uiContainer.style.left = ((vista.w - ANCHO_PANEL_VERTICAL * k) / 2) + 'px';
+    uiContainer.style.maxHeight = ((vista.panelH - 8) / k - 30) + 'px';
+    uiContainer.style.zIndex = '200';
+    // El botón de girar siempre visible al fondo del panel
+    if (btnGirarEl) {
+      btnGirarEl.style.position = 'sticky';
+      btnGirarEl.style.bottom = '0px';
+      btnGirarEl.style.zIndex = '5';
+      btnGirarEl.style.padding = '14px';
+    }
+  } else {
+    // Panel lateral (PC, tablet en horizontal). Mínimo 0.6 para que se lea en móvil horizontal
+    const kPanel = Math.max(escalaUI, 0.6);
+    uiContainer.style.position = 'absolute';
+    uiContainer.style.width = '320px';
+    uiContainer.style.transformOrigin = 'top left';
+    uiContainer.style.transform = `scale(${kPanel})`;
+    uiContainer.style.bottom = 'auto';
+    uiContainer.style.top = (20 * kPanel) + 'px';
+    uiContainer.style.left = (20 * kPanel) + 'px';
+    uiContainer.style.maxHeight = ((window.innerHeight - 40 * kPanel) / kPanel) + 'px';
+    uiContainer.style.zIndex = '100';
+    if (btnGirarEl) {
+      btnGirarEl.style.position = 'relative';
+      btnGirarEl.style.padding = '10px';
+    }
+  }
 
   // Cartelito del autor
+  const kCartel = vista.vertical ? 0.8 : escalaUI;
   cartelAutor.style.transformOrigin = 'bottom right';
-  cartelAutor.style.transform = `scale(${escalaUI})`;
-  cartelAutor.style.bottom = (15 * escalaUI) + 'px';
-  cartelAutor.style.right = (20 * escalaUI) + 'px';
+  cartelAutor.style.transform = `scale(${kCartel})`;
+  cartelAutor.style.bottom = (vista.panelH + 15 * kCartel) + 'px';
+  cartelAutor.style.right = (20 * kCartel) + 'px';
 }
 
 // --- CARTELITO INFERIOR DERECHO (AUTOR) ---
@@ -475,7 +535,11 @@ function mostrarCartel(titulo, texto, subtexto = '') {
   sub.textContent = subtexto;
   sub.style.display = subtexto ? 'block' : 'none';
 
-  cartelCentro.style.transform = `translate(-50%, -50%) scale(${escalaUI})`;
+  // En vertical se centra sobre la ruleta (zona de arriba) y con un tamaño legible
+  const vista = medirVista();
+  const kCartel = vista.vertical ? Math.min(1, (vista.w - 24) / 340) : Math.max(escalaUI, 0.6);
+  cartelCentro.style.top = vista.vertical ? (vista.h / 2) + 'px' : '50%';
+  cartelCentro.style.transform = `translate(-50%, -50%) scale(${kCartel})`;
   cartelCentro.style.opacity = '1';
   lanzarConfetiYDinero();
 }
@@ -769,6 +833,7 @@ camera.position.set(0, 5.0, 4.5);
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; 
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
@@ -1136,7 +1201,9 @@ function animate(tiempoActual) {
 const ASPECTO_REF = DISENO_W / DISENO_H;
 
 function ajustarCamara() {
-  const aspecto = window.innerWidth / window.innerHeight;
+  const vista = medirVista();
+  renderer.setSize(vista.w, vista.h);
+  const aspecto = vista.w / vista.h;
   const factor = Math.max(1, ASPECTO_REF / aspecto);
 
   camera.aspect = aspecto;
@@ -1146,7 +1213,6 @@ function ajustarCamara() {
 }
 
 window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
   ajustarCamara();
   ajustarImagenes();
 });
