@@ -422,6 +422,56 @@ configImagenes.forEach(({ el }) => {
   capaImagenes.appendChild(el);
 });
 
+// --- CHICA APOYADA EN EL PANEL ---
+// Se queda pegada al lado derecho del panel y cambia de tamaño con él (botones A− / A+).
+// En vertical (panel abajo) se pone de pie sobre el borde de arriba del panel, a la derecha.
+const ALTO_CHICA_PANEL = 600;  // alto (px de diseño) con el panel a tamaño normal
+const imagenChicaPanel = document.createElement('img');
+imagenChicaPanel.src = './chica-panel.webp';
+imagenChicaPanel.style.position = 'fixed';
+imagenChicaPanel.style.display = 'none';
+imagenChicaPanel.style.pointerEvents = 'none';
+imagenChicaPanel.style.zIndex = '201'; // por encima del panel (200) y por debajo del cartel del ganador (300)
+imagenChicaPanel.style.filter = 'drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45))';
+document.body.appendChild(imagenChicaPanel);
+
+let escalaPanelActual = 1;
+let panelVerticalActual = false;
+
+function colocarChicaPanel() {
+  const img = imagenChicaPanel;
+  if (!img.naturalWidth) return;
+  const r = uiContainer.getBoundingClientRect(); // ya incluye el escalado del panel
+  const proporcion = img.naturalWidth / img.naturalHeight;
+  let alto, ancho, izq, arriba;
+
+  if (panelVerticalActual) {
+    alto = Math.min(0.85 * r.top, ALTO_CHICA_PANEL * 0.6 * escalaPanelActual);
+    ancho = alto * proporcion;
+    izq = Math.min(r.right - ancho - 4, window.innerWidth - ancho - 4);
+    arriba = r.top + 8 - alto; // los pies quedan sobre el borde del panel
+  } else {
+    alto = Math.min(ALTO_CHICA_PANEL * escalaPanelActual, r.bottom - 4);
+    ancho = alto * proporcion;
+    const libre = window.innerWidth - (r.right - 0.03 * ancho);
+    if (ancho > libre) { // si no cabe a lo ancho, se hace un poco más pequeña
+      alto = alto * libre / ancho;
+      ancho = libre;
+    }
+    izq = r.right - 0.03 * ancho; // la mano queda apoyada en el borde del panel
+    arriba = r.bottom - alto;     // los pies, a la altura del final del panel
+  }
+
+  img.style.width = ancho + 'px';
+  img.style.height = alto + 'px';
+  img.style.left = izq + 'px';
+  img.style.top = arriba + 'px';
+  img.style.display = 'block';
+}
+imagenChicaPanel.addEventListener('load', colocarChicaPanel);
+// Si el panel cambia de alto (otra pestaña, otra lista...), la chica lo sigue
+if (window.ResizeObserver) new ResizeObserver(colocarChicaPanel).observe(uiContainer);
+
 // En vertical (móvil, tablet en vertical) la pantalla se reparte:
 // arriba la ruleta y abajo el panel, que así se puede leer y usar.
 const FRACCION_PANEL_VERTICAL = 0.55; // parte de la altura que ocupa el panel
@@ -539,6 +589,8 @@ function ajustarImagenes() {
     // así el texto crece sin que se salga de la pantalla
     const anchoLogico = ANCHO_PANEL_VERTICAL / z;
     const k = Math.min((ES_MOVIL ? 3.2 : 1.6) * z, (vista.w - 16) / anchoLogico);
+    escalaPanelActual = k;
+    panelVerticalActual = true;
     uiContainer.style.position = 'fixed';
     uiContainer.style.width = (anchoLogico - 30) + 'px';
     uiContainer.style.transformOrigin = 'bottom left';
@@ -558,6 +610,8 @@ function ajustarImagenes() {
   } else {
     // Panel lateral (PC, tablet en horizontal). Mínimo 0.6 para que se lea en móvil horizontal
     const kPanel = Math.min(Math.max(escalaUI, 0.6) * z, (vista.w - 16) / 350);
+    escalaPanelActual = kPanel;
+    panelVerticalActual = false;
     uiContainer.style.position = 'absolute';
     uiContainer.style.width = '320px';
     uiContainer.style.transformOrigin = 'top left';
@@ -578,10 +632,14 @@ function ajustarImagenes() {
 
   // Cartelito del autor
   const kCartel = vista.vertical ? 0.8 : escalaUI;
-  cartelAutor.style.transformOrigin = 'bottom right';
+  // En vertical va a la izquierda, para que no lo tape la chica que está sobre el panel
+  cartelAutor.style.transformOrigin = vista.vertical ? 'bottom left' : 'bottom right';
   cartelAutor.style.transform = `scale(${kCartel})`;
   cartelAutor.style.bottom = (vista.panelH + 15 * kCartel) + 'px';
-  cartelAutor.style.right = (20 * kCartel) + 'px';
+  cartelAutor.style.right = vista.vertical ? 'auto' : (20 * kCartel) + 'px';
+  cartelAutor.style.left = vista.vertical ? (12 * kCartel) + 'px' : 'auto';
+
+  colocarChicaPanel();
 }
 
 // --- CARTELITO INFERIOR DERECHO (AUTOR) ---
@@ -686,10 +744,12 @@ document.getElementById('btn-musica').addEventListener('click', () => {
 
 // --- AUDIOS ESPECIALES (ERIKA Y ROJO 7) ---
 const audioErika = new Audio('./erika.mp3');
+audioErika._urlReal = './erika.mp3';
 audioErika.volume = 0.8;
 audioErika.preload = 'auto';
 
 const audioRojo7 = new Audio('./rojo7.mp3');
+audioRojo7._urlReal = './rojo7.mp3';
 audioRojo7.volume = 0.8;
 audioRojo7.preload = 'auto';
 
@@ -705,25 +765,31 @@ let especialPendiente = null;
 });
 
 // Los navegadores (sobre todo Safari en iPhone/iPad) solo dejan sonar un audio "por sorpresa",
-// varios segundos después del clic, si antes ha sonado durante un toque del usuario.
-// Por eso, en cada toque importante se "desbloquean" estos dos audios: suenan un instante mudos.
-function desbloquearAudioEspecial(audio) {
-  if (!audio.paused || audio === especialPendiente) return; // ya está sonando o a punto de sonar
-  audio._primando = true;
-  audio.muted = true;
-  const promesa = audio.play();
-  if (promesa && promesa.then) {
-    promesa.then(() => {
-      // Si mientras tanto se pidió el sonido de verdad, no se toca
-      if (!audio._primando) return;
-      audio._primando = false;
-      audio.pause();
-      audio.currentTime = 0;
-      audio.muted = false;
-    }).catch(() => {
-      if (audio._primando) { audio._primando = false; audio.muted = false; }
-    });
+// varios segundos después del clic, si antes ha sonado algo en ese mismo elemento durante un toque.
+// Para desbloquearlos usamos un audio SILENCIOSO (así no puede oírse nada) y luego devolvemos el de verdad.
+const AUDIO_SILENCIO = 'data:audio/wav;base64,UklGRvQHAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YdAHAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+
+function restaurarAudioReal(audio) {
+  if (audio.getAttribute('src') !== audio._urlReal) {
+    audio.src = audio._urlReal;
+    audio.load();
   }
+}
+
+function desbloquearAudioEspecial(audio) {
+  if (audio._desbloqueado || audio._primando || !audio.paused || audio === especialPendiente) return;
+  audio._primando = true;
+  const terminar = (ok) => {
+    if (!audio._primando) return; // se pidió el sonido de verdad mientras tanto
+    audio._primando = false;
+    audio.pause();
+    if (ok) audio._desbloqueado = true;
+    restaurarAudioReal(audio);
+  };
+  audio.src = AUDIO_SILENCIO;
+  const promesa = audio.play();
+  if (promesa && promesa.then) promesa.then(() => terminar(true)).catch(() => terminar(false));
+  else terminar(false);
 }
 
 function desbloquearAudios() {
@@ -737,6 +803,7 @@ function reproducirEspecial(audio, otro) {
   if (otro.currentTime) otro.currentTime = 0;
 
   audio._primando = false; // por si todavía se estaba "desbloqueando"
+  restaurarAudioReal(audio);
   audio.muted = false;
   if (audio.currentTime) audio.currentTime = 0;
   especialPendiente = audio;
@@ -764,6 +831,7 @@ function detenerEspeciales() {
   [audioErika, audioRojo7].forEach((audio) => {
     audio._primando = false;
     audio.pause();
+    restaurarAudioReal(audio);
     if (audio.currentTime) audio.currentTime = 0;
     audio.muted = false;
   });
@@ -874,7 +942,7 @@ cartelCentro.style.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
 cartelCentro.style.color = '#fff';
 cartelCentro.style.textAlign = 'center';
 cartelCentro.style.boxShadow = '0 0 50px rgba(212, 112, 159, 0.35), 0 0 110px rgba(111, 78, 166, 0.4)';
-cartelCentro.style.zIndex = '200';
+cartelCentro.style.zIndex = '300';
 cartelCentro.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
 cartelCentro.style.opacity = '0';
 cartelCentro.style.pointerEvents = 'none';
