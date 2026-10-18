@@ -350,13 +350,15 @@ document.body.appendChild(imagenEsquina6);
 const ES_TACTIL = window.matchMedia('(pointer: coarse)').matches;
 // Móvil (no tablet): también cuando el navegador pide la "versión de escritorio"
 const ES_MOVIL = ES_TACTIL && Math.min(window.screen.width, window.screen.height) < 600;
+// En PC el panel sale un 25 % más grande: ese tamaño es el "100 %" (iPad y móvil no cambian)
+const BASE_ZOOM_PC = ES_TACTIL ? 1 : 1.25;
 
 // --- TAMAÑO DEL PANEL (botones A− / 100% / A+) ---
 const NIVELES_ZOOM_PANEL = [0.85, 1, 1.25, 1.5, 1.75];
 const INDICE_ZOOM_NORMAL = 1;
 let indiceZoomPanel = INDICE_ZOOM_NORMAL;
 try {
-  const guardado = parseInt(localStorage.getItem('gamblingficador-zoom-panel'), 10);
+  const guardado = parseInt(localStorage.getItem('gamblingficador-zoom-panel-v2'), 10);
   if (guardado >= 0 && guardado < NIVELES_ZOOM_PANEL.length) indiceZoomPanel = guardado;
 } catch (e) {}
 
@@ -366,7 +368,7 @@ function zoomPanel() {
 
 function cambiarZoomPanel(nuevoIndice) {
   indiceZoomPanel = Math.max(0, Math.min(NIVELES_ZOOM_PANEL.length - 1, nuevoIndice));
-  try { localStorage.setItem('gamblingficador-zoom-panel', String(indiceZoomPanel)); } catch (e) {}
+  try { localStorage.setItem('gamblingficador-zoom-panel-v2', String(indiceZoomPanel)); } catch (e) {}
   ajustarImagenes();
 }
 
@@ -424,9 +426,9 @@ configImagenes.forEach(({ el }) => {
 
 // --- CHICA APOYADA EN EL PANEL ---
 // Se queda pegada al lado derecho del panel y cambia de tamaño con él (botones A− / A+).
-// En vertical (panel abajo) se pone de pie sobre el borde de arriba del panel, a la derecha.
-const ALTO_CHICA_PANEL = 360;  // alto (px de diseño) con el panel a tamaño normal
-const SOLAPE_MANO_CHICA = 0.10; // parte de su ancho que entra sobre el panel (la mano apoyada)
+// En vertical (panel abajo) se pone de pie sobre el borde de arriba del panel, a la izquierda.
+const ALTO_CHICA_PANEL = 500;  // alto (px de diseño) con el panel a tamaño normal
+const SOLAPE_MANO_CHICA = 0.39; // parte de su ancho que entra sobre el panel (la mano apoyada)
 const imagenChicaPanel = document.createElement('img');
 imagenChicaPanel.src = './chica-panel.webp';
 imagenChicaPanel.style.position = 'fixed';
@@ -449,7 +451,7 @@ function colocarChicaPanel() {
   if (panelVerticalActual) {
     alto = Math.min(0.6 * r.top, ALTO_CHICA_PANEL * 0.8 * escalaPanelActual);
     ancho = alto * proporcion;
-    izq = Math.min(r.right - ancho - 4, window.innerWidth - ancho - 4);
+    izq = 0; // pegada al borde izquierdo de la pantalla
     arriba = r.top + 8 - alto; // los pies quedan sobre el borde del panel
   } else {
     alto = Math.min(ALTO_CHICA_PANEL * escalaPanelActual, r.bottom - 4);
@@ -610,7 +612,7 @@ function ajustarImagenes() {
     }
   } else {
     // Panel lateral (PC, tablet en horizontal). Mínimo 0.6 para que se lea en móvil horizontal
-    const kPanel = Math.min(Math.max(escalaUI, 0.6) * z, (vista.w - 16) / 350);
+    const kPanel = Math.min(Math.max(escalaUI, 0.6) * z * BASE_ZOOM_PC, (vista.w - 16) / 350);
     escalaPanelActual = kPanel;
     panelVerticalActual = false;
     uiContainer.style.position = 'absolute';
@@ -633,12 +635,11 @@ function ajustarImagenes() {
 
   // Cartelito del autor
   const kCartel = vista.vertical ? 0.8 : escalaUI;
-  // En vertical va a la izquierda, para que no lo tape la chica que está sobre el panel
-  cartelAutor.style.transformOrigin = vista.vertical ? 'bottom left' : 'bottom right';
+  cartelAutor.style.transformOrigin = 'bottom right';
   cartelAutor.style.transform = `scale(${kCartel})`;
   cartelAutor.style.bottom = (vista.panelH + 15 * kCartel) + 'px';
-  cartelAutor.style.right = vista.vertical ? 'auto' : (20 * kCartel) + 'px';
-  cartelAutor.style.left = vista.vertical ? (12 * kCartel) + 'px' : 'auto';
+  cartelAutor.style.right = (20 * kCartel) + 'px';
+  cartelAutor.style.left = 'auto';
 
   colocarChicaPanel();
 }
