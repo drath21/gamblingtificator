@@ -153,6 +153,7 @@ if (accessForm && welcomeScreen) {
     // Activar la música igual que en el comportamiento original
     musicaActiva = true;
     reproducirFondo();
+    desbloquearAudios();
 
     // Actualizar el botón lateral de música
     const btnMusicaUI = document.getElementById('btn-musica');
@@ -638,6 +639,9 @@ let fallosSeguidos = 0;
 
 function reproducirFondo() {
   if (!musicaActiva) return;
+  // Si está sonando Erika o el Rojo 7, la música espera a que terminen
+  if ((typeof audioErika !== 'undefined' && !audioErika.paused && !audioErika._primando) ||
+      (typeof audioRojo7 !== 'undefined' && !audioRojo7.paused && !audioRojo7._primando)) return;
   audioFondo.play().catch((err) => {
     // AbortError: llegó otra orden (cambio de canción o pausa); la siguiente se encarga
     // NotAllowedError: el navegador exige un gesto del usuario; reintentar no sirve
@@ -683,45 +687,86 @@ document.getElementById('btn-musica').addEventListener('click', () => {
 // --- AUDIOS ESPECIALES (ERIKA Y ROJO 7) ---
 const audioErika = new Audio('./erika.mp3');
 audioErika.volume = 0.8;
+audioErika.preload = 'auto';
 
 const audioRojo7 = new Audio('./rojo7.mp3');
 audioRojo7.volume = 0.8;
+audioRojo7.preload = 'auto';
 
-// Cuando termina Erika, reanudamos la música de fondo si estaba activada
-audioErika.addEventListener('ended', () => {
-  if (musicaActiva) {
-    reproducirFondo();
-  }
+// Qué audio especial toca (o debería tocar) ahora mismo
+let especialPendiente = null;
+
+// Cuando termina un audio especial, reanudamos la música de fondo si estaba activada
+[audioErika, audioRojo7].forEach((audio) => {
+  audio.addEventListener('ended', () => {
+    if (especialPendiente === audio) especialPendiente = null;
+    if (musicaActiva) reproducirFondo();
+  });
 });
 
-// Cuando termina el audio del Rojo 7, reanudamos la música de fondo si estaba activada
-audioRojo7.addEventListener('ended', () => {
-  if (musicaActiva) {
-    reproducirFondo();
+// Los navegadores (sobre todo Safari en iPhone/iPad) solo dejan sonar un audio "por sorpresa",
+// varios segundos después del clic, si antes ha sonado durante un toque del usuario.
+// Por eso, en cada toque importante se "desbloquean" estos dos audios: suenan un instante mudos.
+function desbloquearAudioEspecial(audio) {
+  if (!audio.paused || audio === especialPendiente) return; // ya está sonando o a punto de sonar
+  audio._primando = true;
+  audio.muted = true;
+  const promesa = audio.play();
+  if (promesa && promesa.then) {
+    promesa.then(() => {
+      // Si mientras tanto se pidió el sonido de verdad, no se toca
+      if (!audio._primando) return;
+      audio._primando = false;
+      audio.pause();
+      audio.currentTime = 0;
+      audio.muted = false;
+    }).catch(() => {
+      if (audio._primando) { audio._primando = false; audio.muted = false; }
+    });
   }
-});
+}
+
+function desbloquearAudios() {
+  desbloquearAudioEspecial(audioErika);
+  desbloquearAudioEspecial(audioRojo7);
+}
+
+function reproducirEspecial(audio, otro) {
+  if (musicaActiva) audioFondo.pause();
+  otro.pause();
+  if (otro.currentTime) otro.currentTime = 0;
+
+  audio._primando = false; // por si todavía se estaba "desbloqueando"
+  audio.muted = false;
+  if (audio.currentTime) audio.currentTime = 0;
+  especialPendiente = audio;
+
+  audio.play().catch((err) => {
+    console.warn('No se pudo reproducir el audio especial:', err && err.name);
+    if (err && err.name === 'AbortError') return; // llegó otra orden
+    // El navegador lo bloqueó: se reintenta con el siguiente toque en la pantalla
+    document.addEventListener('pointerdown', () => {
+      if (especialPendiente === audio && audio.paused) audio.play().catch(() => {});
+    }, { once: true });
+  });
+}
 
 function reproducirErika() {
-  if (musicaActiva) audioFondo.pause();
-  audioRojo7.pause();
-  audioRojo7.currentTime = 0;
-  audioErika.currentTime = 0;
-  audioErika.play().catch(() => {});
+  reproducirEspecial(audioErika, audioRojo7);
 }
 
 function reproducirRojo7() {
-  if (musicaActiva) audioFondo.pause();
-  audioErika.pause();
-  audioErika.currentTime = 0;
-  audioRojo7.currentTime = 0;
-  audioRojo7.play().catch(() => {});
+  reproducirEspecial(audioRojo7, audioErika);
 }
 
 function detenerEspeciales() {
-  audioErika.pause();
-  audioErika.currentTime = 0;
-  audioRojo7.pause();
-  audioRojo7.currentTime = 0;
+  especialPendiente = null;
+  [audioErika, audioRojo7].forEach((audio) => {
+    audio._primando = false;
+    audio.pause();
+    if (audio.currentTime) audio.currentTime = 0;
+    audio.muted = false;
+  });
   if (musicaActiva) reproducirFondo();
 }
 
@@ -1631,6 +1676,7 @@ function iniciarGiro() {
   animarGato(true);
   ocultarCartel();
   detenerEspeciales();
+  desbloquearAudios(); // este clic es un gesto del usuario: así luego pueden sonar solos
 
   reproducirSonidoBoton();
 
