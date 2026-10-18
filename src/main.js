@@ -425,7 +425,8 @@ configImagenes.forEach(({ el }) => {
 // --- CHICA APOYADA EN EL PANEL ---
 // Se queda pegada al lado derecho del panel y cambia de tamaño con él (botones A− / A+).
 // En vertical (panel abajo) se pone de pie sobre el borde de arriba del panel, a la derecha.
-const ALTO_CHICA_PANEL = 600;  // alto (px de diseño) con el panel a tamaño normal
+const ALTO_CHICA_PANEL = 360;  // alto (px de diseño) con el panel a tamaño normal
+const SOLAPE_MANO_CHICA = 0.10; // parte de su ancho que entra sobre el panel (la mano apoyada)
 const imagenChicaPanel = document.createElement('img');
 imagenChicaPanel.src = './chica-panel.webp';
 imagenChicaPanel.style.position = 'fixed';
@@ -446,19 +447,19 @@ function colocarChicaPanel() {
   let alto, ancho, izq, arriba;
 
   if (panelVerticalActual) {
-    alto = Math.min(0.85 * r.top, ALTO_CHICA_PANEL * 0.6 * escalaPanelActual);
+    alto = Math.min(0.6 * r.top, ALTO_CHICA_PANEL * 0.8 * escalaPanelActual);
     ancho = alto * proporcion;
     izq = Math.min(r.right - ancho - 4, window.innerWidth - ancho - 4);
     arriba = r.top + 8 - alto; // los pies quedan sobre el borde del panel
   } else {
     alto = Math.min(ALTO_CHICA_PANEL * escalaPanelActual, r.bottom - 4);
     ancho = alto * proporcion;
-    const libre = window.innerWidth - (r.right - 0.03 * ancho);
+    const libre = window.innerWidth - (r.right - SOLAPE_MANO_CHICA * ancho);
     if (ancho > libre) { // si no cabe a lo ancho, se hace un poco más pequeña
       alto = alto * libre / ancho;
       ancho = libre;
     }
-    izq = r.right - 0.03 * ancho; // la mano queda apoyada en el borde del panel
+    izq = r.right - SOLAPE_MANO_CHICA * ancho; // la mano entra un poco sobre el panel
     arriba = r.bottom - alto;     // los pies, a la altura del final del panel
   }
 
